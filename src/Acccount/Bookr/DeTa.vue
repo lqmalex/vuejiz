@@ -1,0 +1,752 @@
+<template>
+  <div class="date">
+    <div class="toBack">
+      <img src="../../assets/images/Back.png" @click="goToFrount" />
+      <span class="toBack-text">{{type_string}}详情</span>
+    </div>
+    <div class="func-branch">
+      <span class="func-branch-text">账面{{type_string}}</span>
+      <van-button type="primary" class="vant-but" @click="showPopup3">
+        {{Tmoney}}
+        <img class="img" src="../../assets/images/arrow.png" />
+      </van-button>
+      <van-popup @close="getOne" v-model="show3">
+        <div class="func-branch">
+          <span class="func-branch-text">账面{{type_string}}</span>
+          <input type="text" v-model="Tmoneyg" />
+        </div>
+        <button @click="SubEdit">保存</button>
+      </van-popup>
+    </div>
+    <div class="func-branch">
+      <span class="func-branch-text">交易对象</span>
+      <van-button type="primary" class="vant-but" @click="showPopup2">
+        {{Obj}}
+        <img class="img" src="../../assets/images/arrow.png" />
+      </van-button>
+      <van-popup @close="getOne" v-model="show2">
+        <div class="func-branch">
+          <span class="func-branch-text">交易对象</span>
+          <input type="text" v-model="Objg" />
+        </div>
+        <button @click="SubEdit">保存</button>
+      </van-popup>
+    </div>
+    <div class="func-branch">
+      <span class="func-branch-text">{{Tstring}}方式</span>
+      <span class="vant-but vant-text">{{Tstring2}}</span>
+    </div>
+    <div class="func-branch">
+      <span class="func-branch-text">{{type_string}}类别</span>
+      <span class="vant-but vant-text">{{Cobj}}</span>
+    </div>
+    <div class="func-branch">
+      <span class="func-branch-text">结清状态</span>
+      <span class="vant-but vant-text">{{Typer}}</span>
+    </div>
+
+    <div v-show="Tshow" v-for="(item,index) in Items" :key="index">
+      <div class="Deta-text">第{{index + 1}}笔{{Tstring}}</div>
+      <div class="func-branch">
+        <span class="func-branch-text">{{Tstring}}金额</span>
+        <van-button type="primary" class="vant-but" @click="showPopupr(item.money,index)">
+          {{item.money}}
+          <img class="img" src="../../assets/images/arrow.png" />
+        </van-button>
+        <van-popup @close="getOne" v-model="showr" :index="index">
+          <div class="func-branch">
+            <span class="func-branch-text">{{Tstring}}金额</span>
+            <input type="text" v-model="Pmoney" />
+          </div>
+          <button @click="setEditWei()">保存</button>
+        </van-popup>
+      </div>
+      <div class="func-branch">
+        <span class="func-branch-text">{{Tstring}}账户</span>
+        <van-button
+          type="primary"
+          class="vant-but"
+          @click="showPopupr1(item.account_name,item.account_id,index)"
+        >
+          {{item.account_name}}
+          <img class="img" src="../../assets/images/arrow.png" />
+        </van-button>
+        <van-popup @close="getOne" v-model="showr1">
+          <van-radio-group v-model="AId">
+            <van-cell-group>
+              <van-cell
+                v-for="(item,index) in Acco"
+                :key="index"
+                :title="item.name"
+                clickable
+                @click="AId = item.id"
+              >
+                <van-radio slot="right-icon" :name="item.id" />
+              </van-cell>
+            </van-cell-group>
+            <button @click="setEditWei()">保存</button>
+          </van-radio-group>
+        </van-popup>
+      </div>
+      <div class="func-branch">
+        <span class="func-branch-text">收款日期</span>
+        <van-button
+          type="primary"
+          class="vant-but"
+          @click="showPopupr2(item.date,index)"
+        >{{item.date}}</van-button>
+        <div>
+          <van-popup
+            v-model="showr2"
+            round
+            position="bottom"
+            :style="{ padding:'0',width:'100%',height: '40%' }"
+          >
+            <van-datetime-picker v-model="timeValue" @confirm="getDate" type="date"></van-datetime-picker>
+          </van-popup>
+        </div>
+      </div>
+      <div class="func-branch branchr">
+        <span class="func-branch-text">收入凭证</span>
+        <van-button
+          type="primary"
+          v-if="item.images.length > 0"
+          class="vant-but"
+          @click="showPopuprw(item.images)"
+        >查看图片</van-button>
+        <van-uploader :name="index" :after-read="afterRead" />
+        <van-popup
+          v-model="showrw"
+          round
+          position="bottom"
+          :style="{ padding:'0',width:'100%',height: '40%' }"
+        >
+          <!-- 如果遍历原先对象主键会出错 -->
+          <img v-for="(it,ke) in fileList" :key="ke" :src="it.thumbnail" alt />
+        </van-popup>
+      </div>
+    </div>
+
+    <div v-show="!Tshow" class="func-branch branchr">
+      <span class="func-branch-text">收入凭证</span>
+      <van-button
+        type="primary"
+        v-show="Lshow"
+        class="vant-but"
+        @click="showPopuprwr(Items[0].images)"
+      >查看图片</van-button>
+      <van-uploader :name="0" :after-read="afterRead" />
+      <van-popup
+        v-model="showrwr"
+        round
+        position="bottom"
+        :style="{ padding:'0',width:'100%',height: '40%' }"
+      >
+        <!-- 如果遍历原先对象主键会出错 -->
+        <img v-for="(it,ke) in fileList" :key="ke" :src="it.thumbnail" alt />
+      </van-popup>
+    </div>
+    <div class="Deta-text">备注</div>
+    <div class="func-branch">
+      <span class="func-branch-text" v-if="!remark">备注(空)</span>
+      <span class="func-branch-text" v-else>{{remark}}</span>
+      <van-button type="primary" class="vant-but" @click="showPopup">
+        <img class="img" src="../../assets/images/arrow.png" />
+      </van-button>
+      <van-popup v-model="show">
+        <textarea v-model="remark" placeholder="请输入备注信息"></textarea>
+        <button @click="SubEdit">保存</button>
+      </van-popup>
+    </div>
+    <div class="func-top">
+      <div class="func-branch">
+        <span class="func-branch-text">记账人</span>
+        <span class="vant-but vant-text">{{Meobj}}</span>
+      </div>
+      <div class="func-branch">
+        <span class="func-branch-text">记账日期</span>
+        <span class="vant-but vant-text">{{loaTime}}</span>
+      </div>
+      <div class="func-branch">
+        <span class="func-branch-text">更新日期</span>
+        <span class="vant-but vant-text">{{newTime}}</span>
+      </div>
+      <div class="footer-but" v-show="Tshow">
+        <van-button type="primary" class="but vant-but" @click="showPopupr3">后续付款</van-button>
+        <van-popup v-model="showr3">
+          <div class="func-branch">
+            <span class="func-branch-text">{{Tstring}}金额</span>
+            <input type="text" placeholder="0.00" v-model="total_money" />
+          </div>
+          <div class="func-branch">
+            <span class="func-branch-text">{{Tstring}}账户</span>
+            <van-button type="primary" class="vant-but" v-if="!Amess" @click="showPopuprr">请选择</van-button>
+            <van-button type="primary" class="vant-but" v-else @click="showPopuprr">{{Amess}}</van-button>
+            <van-popup v-model="showrr">
+              <van-radio-group v-model="Aid">
+                <van-cell-group>
+                  <van-cell title="请选择" clickable @click="Aid = '';setAmess('')">
+                    <van-radio slot="right-icon" name />
+                  </van-cell>
+                  <van-cell
+                    v-for="(item,index) in Acco"
+                    :key="index"
+                    :title="item.name"
+                    clickable
+                    @click="Aid = item.id;setAmess(item.name)"
+                  >
+                    <van-radio slot="right-icon" :name="item.id" />
+                  </van-cell>
+                </van-cell-group>
+              </van-radio-group>
+            </van-popup>
+          </div>
+          <div class="func-branch branchr">
+            <span class="func-branch-text">收入凭证</span>
+            <van-uploader :after-read="afterRead2" />
+          </div>
+          <div class="func-branch">
+            <span class="func-branch-text">{{Tstring}}日期</span>
+            <van-button type="primary" class="vant-but" @click="showPopuprr2">{{TimeValue}}</van-button>
+            <van-popup v-model="showrr2" round position="bottom" :style="{ height: '40%' }">
+              <van-datetime-picker v-model="currentDate" @confirm="getDate2" type="date"></van-datetime-picker>
+            </van-popup>
+          </div>
+          <button @click="SubFollow">保存</button>
+        </van-popup>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+import { resolve } from "url";
+import { reject } from "q";
+import Qs from "qs";
+import {
+  Popup,
+  Button,
+  Cell,
+  CellGroup,
+  RadioGroup,
+  Radio,
+  DatetimePicker,
+  Uploader,
+  Toast,
+  Dialog
+} from "vant";
+export default {
+  inject: ["reload"],
+  components: {
+    [Popup.name]: Popup,
+    [Button.name]: Button,
+    [Cell.name]: Cell,
+    [CellGroup.name]: CellGroup,
+    [RadioGroup.name]: RadioGroup,
+    [Radio.name]: Radio,
+    [DatetimePicker.name]: DatetimePicker,
+    [Uploader.name]: Uploader,
+    [Toast.name]: Toast,
+    [Dialog.name]: Dialog
+  },
+  data() {
+    return {
+      book_id: "",
+      Token: "",
+      Tshow: false,
+      //收入或支出
+      type_string: "",
+      //收款或付款
+      Tstring: "",
+      //已结清或未结清
+      Typer: "",
+      //全额或分期
+      Tstring2: "",
+      //交易对象
+      Obj: "",
+      Objg: "",
+      //类别
+      Cobj: "",
+      //记账人
+      Meobj: "",
+      //记账日期
+      loaTime: "",
+      //更新时间
+      newTime: "",
+      //备注
+      remark: "",
+      //金额
+      Tmoney: "",
+      Tmoneyg: "",
+      //实付金额
+      Pmoney: "",
+      //日期
+      DateT: "",
+      //账户
+      Acco: [],
+      //账户名称
+      Amess: "",
+      //账户id
+      AId: "",
+      //修改的items主键
+      key: "",
+      //后续 金额
+      total_money: "",
+      //后续 账户id
+      Aid: "",
+      AcId: "",
+      //后续 时间
+      currentDate: new Date(),
+      //后续 时间显示
+      TimeValue: "",
+      //原始记录id
+      Yid: "",
+      fileList: [],
+      Items: [],
+      itemId: "",
+      fileKey: "",
+      Lshow: false,
+      timeValue: [],
+      show3: false,
+      show2: false,
+      show: false,
+      showr: false,
+      showr1: false,
+      showr2: false,
+      showr3: false,
+      showrr: false,
+      showrr2: false,
+      showrw: false,
+      showrwr: false
+    };
+  },
+  methods: {
+    /**
+     *返回上一页
+     */
+    goToFrount() {
+      this.$router.go(-1);
+    },
+    /**
+     * 获取当前时间
+     */
+    getCurrent() {
+      let time = new Date();
+      this.TimeValue = (
+        time.getFullYear() +
+        "-" +
+        (time.getMonth() + 1) +
+        "-" +
+        time.getDate()
+      ).toString();
+    },
+    /**
+     * 获取账单id
+     */
+    getBookId() {
+      return new Promise((resolve, reject) => {
+        resolve(
+          ((this.book_id = localStorage.getItem("book_id")),
+          (this.Token = localStorage.getItem("token")))
+        );
+      });
+    },
+    /**
+     * 设置文字
+     */
+    setString() {
+      return new Promise((resolve, reject) => {
+        resolve((this.Tstring = this.type_string == "收入" ? "收款" : "付款"));
+      });
+    },
+    /**
+     * 获取账单详情 整合数据
+     */
+    getData(id, token) {
+      return new Promise((resolve, reject) => {
+        this.axios
+          .get(`/api/record/detail?id=${id}&token=${token}`)
+          .then(data => {
+            // console.log(data);
+            let num =
+              parseFloat(data.data.data.total_money) -
+              parseFloat(data.data.data.paid_money);
+            this.type_string = data.data.data.type_string;
+
+            this.setString().then(() => {
+              resolve(
+                (this.AcId = data.data.data.items[0].account_id),
+                (this.Yid = data.data.data.id),
+                (this.Items = data.data.data.items),
+                (this.Tshow = num == 0 ? false : true),
+                (this.Tmoney = data.data.data.total_money),
+                (this.Typer = num == 0 ? "已结清" : `未结清(${num})`),
+                (this.Tstring2 =
+                  num == 0 ? `全额${this.Tstring}` : `分期${this.Tstring}`),
+                (this.Obj = data.data.data.company_name),
+                (this.Cobj = data.data.data.category_name),
+                (this.Meobj = data.data.data.user_nickname),
+                (this.loaTime = data.data.data.created_at),
+                (this.newTime = data.data.data.updated_at),
+                (this.remark = data.data.data.remark)
+              );
+            });
+          });
+      });
+    },
+    /**
+     * 点击完成按钮时触发的事件
+     */
+    getDate(value) {
+      //调用格式化时间函数
+      let time = new Date(value);
+      this.DateT = this.timeFormat(time);
+      this.showr2 = false;
+      this.setEditWei();
+    },
+    /**
+     * 后续 点击完成按钮时触发的事件
+     */
+    getDate2(value) {
+      let time = this.timeFormat(value);
+      this.TimeValue = time;
+      this.showrr2 = false;
+    },
+    /**
+     * 插件时间调为收款时间
+     */
+    setTime() {
+      this.timeValue = this.timeFormat(this.DateT);
+      this.timeValue = new Date(this.timeValue);
+    },
+    /**
+     * 格式化时间
+     */
+    timeFormat(time) {
+      time = new Date(time);
+      let year = time.getFullYear();
+      let month = time.getMonth() + 1;
+      let day = time.getDate();
+      return year + "-" + month + "-" + day;
+    },
+    /**
+     * 设置后续账户双向数据绑定
+     */
+    setAmess(mess, id) {
+      this.Amess = mess;
+      this.showrr = false;
+    },
+    /**
+     * 获取账户
+     */
+    getAcco(token) {
+      return new Promise((resolve, reject) => {
+        this.axios.get(`api/account?token=${token}`).then(data => {
+          resolve((this.Acco = data.data.data));
+        });
+      });
+    },
+    /**
+     * 文件读取完毕回调函数
+     */
+    afterRead(file, _this) {
+      this.key = _this.name;
+      // 调用上传
+      this.SubImg(file.file).then(() => {
+        this.setEditWei();
+      });
+    },
+    afterRead2(file) {
+      this.SubImg(file.file).then(() => {});
+    },
+    /**
+     * 上传图片
+     */
+    SubImg(file) {
+      return new Promise((resolve, reject) => {
+        //new 一个FormData格式的参数
+        let params = new FormData();
+        params.append("file", file);
+        let config = {
+          headers: {
+            //添加请求头
+            "Content-Type": "multipart/form-data"
+          }
+        };
+
+        this.axios
+          .post(`/api/upload/image?token=${this.Token}`, params, config)
+          .then(data => {
+            if (data.data.status == true) {
+              resolve(
+                (this.fileKey = data.data.data.file.fileKey),
+                Toast("文件上传成功")
+              );
+            } else {
+              Toast(`${data.data.data}`);
+            }
+          });
+      });
+    },
+    /**
+     * 修改
+     */
+    SubEdit() {
+      this.Tmoneyg = this.Tmoneyg == "" ? this.Tmoney : this.Tmoneyg;
+      this.Objg = this.Objg == "" ? this.Obj : this.Objg;
+      let data = Qs.stringify({
+        total_money: this.Tmoneyg,
+        company_name: this.Objg,
+        remark: this.remark,
+        image_keys: this.fileKey
+      });
+      this.axios
+        .post(`/api/record/update?id=${this.book_id}&token=${this.Token}`, data)
+        .then(data => {
+          if (data.data.status) {
+            Toast("修改成功");
+            this.reload();
+          } else {
+            Toast(`${data.data.data}`);
+          }
+        });
+    },
+    /**
+     * 未结清修改
+     */
+    setEditWei() {
+      //获取id key代表主键
+      let id = this.Items[this.key].id;
+      //利用三元判断是否为空 来填写相应的值
+      this.Pmoney =
+        this.Pmoney == "" ? this.Items[this.key].money : this.Pmoney;
+      this.AId = this.AId == "" ? this.Items[this.key].account_id : this.AId;
+      this.DateT = this.DateT == "" ? this.Items[this.key].date : this.DateT;
+
+      //整合数据
+      let data = Qs.stringify({
+        money: this.Pmoney,
+        account_id: this.AId,
+        date: this.DateT,
+        image_keys: this.fileKey
+      });
+
+      //调用接口修改数据
+      this.axios
+        .post(`/api/record/item/update?itemId=${id}&token=${this.Token}`, data)
+        .then(data => {
+          if (data.data.status) {
+            Toast("修改成功");
+            this.reload();
+          } else {
+            Toast(`${data.data.data}`);
+          }
+        });
+    },
+    /**
+     * 后续记账提交
+     */
+    SubFollow() {
+      let data = Qs.stringify({
+        record_id: this.Yid,
+        money: this.total_money,
+        account_id: this.Aid,
+        date: this.TimeValue,
+        image_keys: this.fileKey
+      });
+      this.axios
+        .post(`/api/record/sequel?token=${this.Token}`, data)
+        .then(data => {
+          if (data.data.status) {
+            Toast("记账成功");
+            this.reload();
+          } else {
+            Toast(`${data.data.data}`);
+          }
+        });
+    },
+    /**
+     *
+     */
+    showPopup3() {
+      this.Tmoneyg = this.Tmoney;
+      this.show3 = true;
+    },
+    showPopup2() {
+      this.Objg = this.Obj;
+      this.show2 = true;
+    },
+    showPopup() {
+      this.show = true;
+    },
+    showPopupr(money, key) {
+      this.key = key;
+      this.Pmoney = money;
+      this.showr = true;
+    },
+    showPopupr1(name, id, key) {
+      this.key = key;
+      this.AId = id;
+      this.showr1 = true;
+    },
+    showPopupr2(time, key) {
+      this.key = key;
+      this.timeValue = this.timeFormat(time);
+      this.timeValue = new Date(this.timeValue);
+      this.showr2 = true;
+    },
+    showPopupr3() {
+      this.showr3 = true;
+    },
+    showPopuprr() {
+      this.showrr = true;
+    },
+    showPopuprr2() {
+      this.showrr2 = true;
+    },
+    showPopuprw(imgs) {
+      this.fileList = imgs;
+      this.showrw = true;
+    },
+    showPopuprwr(imgs) {
+      this.fileList = imgs;
+      this.showrwr = true;
+    },
+    /**
+     * 弹出框关闭时触发
+     */
+    getOne() {
+      //将在调用接口传递的值赋值为空 避免用户没保存却又提交上去
+      [this.Tmoneyg, this.Objg, this.Pmoney, this.AId] = ["", "", "", ""];
+    }
+  },
+  created() {
+    this.getBookId().then(() => {
+      this.getCurrent();
+      this.getData(this.book_id, this.Token).then(() => {
+        if (this.Items.length == 1) {
+          this.Lshow = this.Items[0].images.length > 0 ? true : false;
+        }
+      });
+      this.getAcco(this.Token).then(() => {});
+    });
+  }
+};
+</script>
+
+<style>
+.date {
+  margin-bottom: 80px;
+}
+
+.toBack {
+  height: 35px;
+  background: #50af08;
+  text-align: left;
+  padding: 10px;
+  margin-bottom: 5px;
+  position: relative;
+}
+
+.toBack-text {
+  position: absolute;
+  left: 38%;
+  color: #fff;
+  top: 14%;
+  font-size: 18px;
+}
+
+.toBack > img {
+  height: 100%;
+}
+
+.func-branch {
+  text-align: left;
+  display: flex;
+  height: 50px;
+  background: #fff;
+  border-bottom: 2px solid #ccc;
+}
+
+.func-branch-text {
+  flex: 1;
+  line-height: 50px;
+  padding-left: 6px;
+}
+
+.vant-but {
+  background: #fff;
+  border: 0;
+  color: #969696;
+  flex: 1;
+  text-align: right;
+  position: relative;
+  padding: 0 24px;
+}
+
+.func-branch > input {
+  flex: 1;
+  border: 0;
+  height: 50px;
+  text-align: right;
+  padding-right: 6px;
+}
+
+.van-popup {
+  width: 300px;
+  padding: 20px 20px;
+  height: 60%;
+}
+
+.img {
+  width: 20px;
+  position: absolute;
+  top: 9px;
+  right: 5px;
+}
+
+button,
+.but {
+  margin-top: 15px;
+  width: 100%;
+  height: 37px;
+  background: #50af08;
+  color: #fff;
+  text-align: center;
+}
+
+.vant-text {
+  line-height: 50px;
+}
+
+.Deta-text {
+  color: #969696;
+  font-size: 14px;
+  text-align: left;
+  padding-left: 5px;
+}
+
+textarea {
+  width: 100%;
+  height: 80px;
+  border: 0;
+  border-bottom: 2px solid #ccc;
+}
+
+.func-top {
+  margin-top: 20px;
+}
+
+.branchr {
+  height: 80px;
+}
+
+.footer-but {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 10px 10px;
+  background: #fff;
+}
+</style>
