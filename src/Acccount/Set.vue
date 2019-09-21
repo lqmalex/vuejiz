@@ -37,6 +37,7 @@
 <script>
 import Mainr from "../components/Main";
 import { Cell, CellGroup, Button, Dialog } from "vant";
+import Api from "../Api";
 export default {
   components: {
     Mainr,
@@ -63,7 +64,7 @@ export default {
         .then(() => {
           let Token = localStorage.getItem("token");
           this.axios
-            .get("/api/user/logout?token=" + Token + "")
+            .get(Api.UserOut + Token)
             .then(data => {
               //   console.log(data);
               if (data.data.status == true) {

@@ -43,6 +43,7 @@ import {
 import { resolve } from "url";
 import { reject } from "q";
 import Qs from "qs";
+import Api from "../../Api";
 export default {
   data() {
     return {
@@ -85,7 +86,7 @@ export default {
      */
     getMe(token) {
       return new Promise((resolve, reject) => {
-        this.axios.get(`/api/user/profile?token=${token}`).then(data => {
+        this.axios.get(Api.User + token).then(data => {
           // console.log(data);
           resolve(
             (this.NewName = data.data.data.nickname),
@@ -115,7 +116,7 @@ export default {
         };
 
         this.axios
-          .post(`/api/upload/image?token=${this.Token}`, params, config)
+          .post(Api.UploadImg + this.Token, params, config)
           .then(data => {
             if (data.data.status == true) {
               resolve(
@@ -137,15 +138,13 @@ export default {
         avatar: this.fileKey
       });
 
-      this.axios
-        .post(`/api/user/profile/update?token=${this.Token}`, data)
-        .then(data => {
-          if (data.data.status) {
-            Toast("修改成功");
-          } else {
-            Toast(`${data.data.data}`);
-          }
-        });
+      this.axios.post(Api.UserUpload + this.Token, data).then(data => {
+        if (data.data.status) {
+          Toast("修改成功");
+        } else {
+          Toast(`${data.data.data}`);
+        }
+      });
     },
     showPopupr() {
       this.show = true;

@@ -29,6 +29,7 @@ import { Cell, CellGroup, Button, Dialog } from "vant";
 import { resolve } from "url";
 import { reject } from "q";
 import Qs from "qs";
+import Api from "../../Api";
 export default {
   inject: ["reload"],
   data() {
@@ -66,7 +67,7 @@ export default {
      */
     getApi(Token) {
       return new Promise((resolve, reject) => {
-        this.axios.get(`api/book?token=${Token}`).then(data => {
+        this.axios.get(Api.Book + Token).then(data => {
           resolve((this.Fin = data.data.data));
         });
       });
@@ -76,7 +77,7 @@ export default {
      */
     current(Token) {
       return new Promise((resolve, reject) => {
-        this.axios.get(`api/book/get-default?token=${Token}`).then(data => {
+        this.axios.get(Api.CurBook + Token).then(data => {
           resolve((this.Did = data.data.data.id));
         });
       });
@@ -109,7 +110,7 @@ export default {
             book_id: id
           });
           this.axios
-            .post(`api/book/delete?token=${this.Token}`, data)
+            .post(Api.BookDel + this.Token, data)
             .then(data => {
               if (data.data.status == true) {
                 _this.path[5].style.display = "none";
@@ -143,20 +144,18 @@ export default {
       let data = Qs.stringify({
         book_id: id
       });
-      this.axios
-        .post(`api/book/set-default?token=${this.Token}`, data)
-        .then(data => {
-          if (data.data.status == true) {
-            //再次调用Promise对应方法实现无刷新切换当前账簿
-            // this.getApi(this.Token).then(() => {
-            //   this.current(this.Token).then(() => {
-            //     this.getCurrent(id).then(() => {});
-            //   });
-            // });
-            //使用以上方法更改插件容易出错
-            this.reload();
-          }
-        });
+      this.axios.post(Api.BookSet + this.Token, data).then(data => {
+        if (data.data.status == true) {
+          //再次调用Promise对应方法实现无刷新切换当前账簿
+          // this.getApi(this.Token).then(() => {
+          //   this.current(this.Token).then(() => {
+          //     this.getCurrent(id).then(() => {});
+          //   });
+          // });
+          //使用以上方法更改插件容易出错
+          this.reload();
+        }
+      });
     },
     /**
      * 跳转到添加页

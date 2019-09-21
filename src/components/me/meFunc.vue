@@ -48,7 +48,7 @@ export default {
       this.$router.push("/acco");
     },
     /**
-     * 跳转到记账成员
+     * 跳转到记账成员 
      */
     goToMe() {
       this.$router.push("/Member");

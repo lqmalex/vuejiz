@@ -19,6 +19,7 @@ import {
   Cell,
   CellGroup
 } from "vant";
+import Api from "../Api";
 export default {
   inject: ["reload"],
   components: {
@@ -38,7 +39,7 @@ export default {
       // console.log(id);
       // return;
       this.axios
-        .post(`api/record/delete?id=${id}&token=${Token}`)
+        .post(Api.Del.Url1 + id + Api.Del.Url2 + Token)
         .then(data => {
           if (data.data.status == true) {
             _this.path[4].style.display = "none";

@@ -15,6 +15,7 @@ import echarts from 'echarts'
 //全局注册
 // axios.defaults.header['Content-Type'] = 'application/x-www-form-urlencoded';
 Vue.prototype.axios = axios
+axios.defaults.baseURL = process.env.API_ROOT
 Vue.prototype.$echarts = echarts
 
 Vue.config.productionTip = false

@@ -18,6 +18,7 @@
 <script>
 import Qs from "qs";
 import { Cell, CellGroup, Button, Dialog } from "vant";
+import Api from "../Api";
 export default {
   data() {
     return {
@@ -46,7 +47,7 @@ export default {
       });
 
       this.axios
-        .post(`/api/user/password?token=${Token}`, data, {
+        .post(Api.UpdatePass + Token, data, {
           headers: { "Content-Type": "application/x-www-form-urlencoded" }
         })
         .then(data => {

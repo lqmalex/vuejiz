@@ -20,6 +20,7 @@
 <script>
 import Swipe from "../../components/BookSwipe";
 import { Cell, CellGroup, Button, Dialog } from "vant";
+import Api from "../../Api";
 export default {
   data() {
     return {
@@ -45,7 +46,7 @@ export default {
      */
     getApi() {
       let Token = localStorage.getItem("token");
-      this.axios.get(`api/account?token=${Token}`).then(data => {
+      this.axios.get(Api.Account + Token).then(data => {
         this.Assets = data.data.data;
       });
     },
@@ -60,8 +61,9 @@ export default {
         .then(() => {
           let id = _this.path[5].attributes[2].nodeValue;
           let token = localStorage.getItem("token");
+
           this.axios
-            .post(`api/account/delete?id=${id}&token=${token}`)
+            .post(Api.DelAcc.Url1 + id + Api.DelAcc.Url2 + token)
             .then(data => {
               if (data.data.status == true) {
                 _this.path[5].style.display = "none";
@@ -88,7 +90,6 @@ export default {
      * 跳转至编辑页
      */
     gotoEdit(id) {
-      // let id = _this.path[5].attributes[2].nodeValue;
       localStorage.setItem("Eid", id);
       this.$router.push("/AccEdit");
     }

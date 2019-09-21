@@ -34,6 +34,7 @@ import Swpier from "../../components/BookSwipe";
 import { Cell, CellGroup, Button, Dialog } from "vant";
 import { resolve } from "url";
 import { reject } from "q";
+import Api from "../../Api";
 export default {
   inject: ["reload"],
   components: {
@@ -150,7 +151,7 @@ export default {
         let token = localStorage.getItem("token");
 
         this.axios
-          .get(`/api/record/account?token=${token}`, {
+          .get(Api.Record + token, {
             params: {
               begin_date: `${this.Year1}-${this.Month1}-${this.Day1}`,
               end_date: `${this.Year}-${this.Month}-${this.Day}`
@@ -169,7 +170,7 @@ export default {
         let token = localStorage.getItem("token");
 
         this.axios
-          .get(`/api/record/account/waiting?token=${token}`, {
+          .get(Api.RecWai + token, {
             params: {
               type: 2
             }
@@ -187,7 +188,7 @@ export default {
         let token = localStorage.getItem("token");
 
         this.axios
-          .get(`/api/record/account/waiting?token=${token}`, {
+          .get(Api.RecWai + token, {
             params: {
               type: 1
             }
@@ -202,7 +203,7 @@ export default {
      */
     del(_this) {
       //获取id值
-      let id = _this.path[4].attributes[1].nodeValue;
+      let id = _this.path[4].attributes[2].nodeValue;
       let Token = localStorage.getItem("token");
       Dialog.confirm({
         title: "提示",
@@ -210,7 +211,7 @@ export default {
       })
         .then(() => {
           this.axios
-            .post(`api/record/delete?id=${id}&token=${Token}`)
+            .post(Api.Del.Url1 + id + Api.Del.Url2 + Token)
             .then(data => {
               if (data.data.status == true) {
                 _this.path[4].style.display = "none";

@@ -24,6 +24,7 @@
 <script>
 import { resolve } from "url";
 import { reject } from "q";
+import Api from "../../Api";
 export default {
   data() {
     return {
@@ -45,14 +46,14 @@ export default {
      */
     getBook(token) {
       return new Promise((resolve, reject) => {
-        this.axios.get(`/api/book/get-default?token=${token}`).then(data => {
+        this.axios.get(Api.CurBook + token).then(data => {
           resolve((this.Book_id = data.data.data.id));
         });
       });
     },
     getAllBook(token) {
       return new Promise((resolve, reject) => {
-        this.axios.get(`/api/book?token=${token}`).then(data => {
+        this.axios.get(Api.Book + token).then(data => {
           resolve((this.Book_len = data.data.data.length));
         });
       });
@@ -60,7 +61,7 @@ export default {
     getDataNum(token) {
       return new Promise((resolve, reject) => {
         this.axios
-          .get(`/api/record/account?token=${token}`, {
+          .get(Api.Record + token, {
             params: {
               begin_date: "1990-01-01",
               end_date: "2100-01-01"
@@ -74,7 +75,7 @@ export default {
     getMember(book, token) {
       return new Promise((resolve, reject) => {
         this.axios
-          .get(`/api/member?token=${token}`, {
+          .get(Api.Member + token, {
             params: {
               book_id: book
             }

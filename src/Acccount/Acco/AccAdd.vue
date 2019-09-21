@@ -21,6 +21,7 @@
 
 <script>
 import Qs from "qs";
+import Api from "../../Api";
 export default {
   data() {
     return {
@@ -50,7 +51,7 @@ export default {
       });
       let token = localStorage.getItem("token");
       this.axios
-        .post(`api/account/create?token=${token}`, data)
+        .post(Api.AccAdd + token, data)
         .then(data => {
           if (data.data.status == true) {
             this.$router.push("/Assets");

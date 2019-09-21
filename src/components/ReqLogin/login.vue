@@ -14,6 +14,7 @@
 <script>
 import Qs from "qs";
 import { Cell, CellGroup, Button, Dialog } from "vant";
+import Api from "../../Api";
 export default {
   data() {
     return {
@@ -32,7 +33,7 @@ export default {
   },
   methods: {
     getImg() {
-      this.axios.get("/api/captcha").then(data => {
+      this.axios.get(Api.GetImg).then(data => {
         this.imgKey = data.data.data.key;
         this.imgUrl = data.data.data.url;
       });
@@ -45,7 +46,7 @@ export default {
         captcha_key: this.imgKey
       });
       this.axios
-        .post("/api/user/token/mobile", data, {
+        .post(Api.Login, data, {
           headers: { "Content-Type": "application/x-www-form-urlencoded" }
         })
         .then(data => {

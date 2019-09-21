@@ -14,6 +14,7 @@
 
 <script>
 import Qs from "qs";
+import Api from "../../Api";
 export default {
   components: {},
   data() {
@@ -47,7 +48,7 @@ export default {
     getApi() {
       let token = localStorage.getItem("token");
       this.axios
-        .get(`/api/category?token=${token}`, {
+        .get(Api.Cate + token, {
           params: {
             type: this.Type
           }
@@ -89,7 +90,7 @@ export default {
       });
 
       this.axios
-        .post(`api/category/update?id=${id}&token=${Token}`, data)
+        .post(Api.CateEdit.Url1 + id + Api.CateEdit.Url2 + Token, data)
         .then(data => {
           if (data.data.status == true) {
             this.$router.push("/Cate");

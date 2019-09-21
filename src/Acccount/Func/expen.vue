@@ -109,6 +109,7 @@ import {
 import Qs from "qs";
 import { reject } from "q";
 import { resolve } from "url";
+import Api from "../../Api";
 export default {
   components: {
     [Popup.name]: Popup,
@@ -195,7 +196,7 @@ export default {
      */
     getAcco(token) {
       return new Promise((resolve, reject) => {
-        this.axios.get(`api/account?token=${token}`).then(data => {
+        this.axios.get(Api.Account + token).then(data => {
           resolve((this.Acco = data.data.data));
         });
       });
@@ -206,7 +207,7 @@ export default {
     getCate(token) {
       return new Promise((resolve, reject) => {
         this.axios
-          .get(`api/category?token=${token}`, {
+          .get(Api.Cate + token, {
             params: {
               type: 2
             }
@@ -259,7 +260,7 @@ export default {
         };
 
         this.axios
-          .post(`/api/upload/image?token=${this.Token}`, params, config)
+          .post(Api.UploadImg + this.Token, params, config)
           .then(data => {
             if (data.data.status == true) {
               this.fileKey = data.data.data.file.fileKey;
@@ -290,19 +291,17 @@ export default {
         remark: this.remark,
         image_keys: this.fileKey
       });
-      this.axios
-        .post(`/api/record/create?token=${this.Token}`, data)
-        .then(data => {
-          //   console.log(data);
-          if (data.data.status == true) {
-            Toast("提交成功");
-          } else {
-            Dialog.alert({
-              title: "提交",
-              message: `${data.data.data}`
-            }).then(() => {});
-          }
-        });
+      this.axios.post(Api.SubAcc + this.Token, data).then(data => {
+        //   console.log(data);
+        if (data.data.status == true) {
+          Toast("提交成功");
+        } else {
+          Dialog.alert({
+            title: "提交",
+            message: `${data.data.data}`
+          }).then(() => {});
+        }
+      });
     }
   },
   created() {

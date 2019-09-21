@@ -20,6 +20,7 @@
 <script>
 import Swipe from "../../components/BookSwipe";
 import { Cell, CellGroup, Button, Dialog } from "vant";
+import Api from "../../Api";
 export default {
   data() {
     return {
@@ -60,7 +61,7 @@ export default {
     getApi() {
       let token = localStorage.getItem("token");
       this.axios
-        .get(`/api/category?token=${token}`, {
+        .get(Api.Cate + token, {
           params: {
             type: this.Type
           }
@@ -81,7 +82,7 @@ export default {
           let id = _this.path[5].attributes[2].nodeValue;
           let token = localStorage.getItem("token");
           this.axios
-            .post(`api/category/delete?id=${id}&token=${token}`)
+            .post(Api.CateDel.Url1 + id + Api.CateDel.Url2 + token)
             .then(data => {
               if (data.data.status == true) {
                 _this.path[5].style.display = "none";

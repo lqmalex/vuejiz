@@ -18,11 +18,15 @@
 <script>
 import columns from "../components/me/columns";
 import Func from "../components/me/meFunc";
+import Api from "../Api";
+import { resolve } from "url";
+import { reject } from "q";
 export default {
   data() {
     return {
       name: "",
-      Img: ""
+      Img: "",
+      Token: ""
     };
   },
   components: {
@@ -37,11 +41,12 @@ export default {
       let Token = localStorage.getItem("token");
 
       this.axios
-        .get(`api/user/profile?token=${Token}`)
+        .get(Api.User + Token)
         .then(data => {
           // console.log(data);
           this.name = data.data.data.nickname;
           this.Img = data.data.data.avatar_url;
+          // console.log(data);
         })
         .catch(err => {
           console.log(err);

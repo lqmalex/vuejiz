@@ -14,6 +14,7 @@
 
 <script>
 import Qs from "qs";
+import Api from "../../Api";
 export default {
   data() {
     return {
@@ -48,7 +49,7 @@ export default {
       });
       let token = localStorage.getItem("token");
       this.axios
-        .post(`api/category/create?token=${token}`, data)
+        .post(Api.CateAdd + token, data)
         .then(data => {
           if (data.data.status == true) {
             this.$router.push("/Cate");

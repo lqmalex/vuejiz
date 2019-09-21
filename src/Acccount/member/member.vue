@@ -23,6 +23,7 @@ import { Cell, CellGroup, Button, Dialog } from "vant";
 import { resolve } from "url";
 import { reject } from "q";
 import Qs from "qs";
+import Api from "../../Api";
 export default {
   inject: ["reload"],
   data() {
@@ -61,7 +62,7 @@ export default {
      */
     setBook(token) {
       return new Promise((resolve, reject) => {
-        this.axios.get(`/api/book/get-default?token=${token}`).then(data => {
+        this.axios.get(Api.CurBook + token).then(data => {
           resolve((this.Id = data.data.data.id));
         });
       });
@@ -72,7 +73,7 @@ export default {
     getApi(id, token) {
       return new Promise((resolve, reject) => {
         this.axios
-          .get(`api/member?token=${token}`, {
+          .get(Api.MemberList + token, {
             params: {
               book_id: id
             }
@@ -99,7 +100,7 @@ export default {
             user_id: id
           });
           this.axios
-            .post(`api/member/delete?token=${this.Token}`, data)
+            .post(Api.MemberDel + this.Token, data)
             .then(data => {
               if (data.data.status == true) {
                 _this.path[5].style.display = "none";

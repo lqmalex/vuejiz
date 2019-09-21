@@ -20,6 +20,7 @@ import { Cell, CellGroup, Button, Dialog } from "vant";
 import { resolve } from "url";
 import { reject } from "q";
 import Qs from "qs";
+import Api from "../../Api";
 export default {
   data() {
     return {
@@ -59,21 +60,19 @@ export default {
         contact: this.info
       });
 
-      this.axios
-        .post(`api/feedback/add?token=${this.Token}`, data)
-        .then(data => {
-          if (data.data.status == true) {
-            Dialog.alert({
-              title: "提示",
-              message: `${data.data.data}`
-            }).then(() => {});
-          } else {
-            Dialog.alert({
-              title: "提示",
-              message: `${data.data.data}`
-            }).then(() => {});
-          }
-        });
+      this.axios.post(Api.Feed + this.Token, data).then(data => {
+        if (data.data.status == true) {
+          Dialog.alert({
+            title: "提示",
+            message: `${data.data.data}`
+          }).then(() => {});
+        } else {
+          Dialog.alert({
+            title: "提示",
+            message: `${data.data.data}`
+          }).then(() => {});
+        }
+      });
     }
   },
   created() {

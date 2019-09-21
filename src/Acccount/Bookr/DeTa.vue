@@ -235,6 +235,7 @@ import {
   Toast,
   Dialog
 } from "vant";
+import Api from "../../Api";
 export default {
   inject: ["reload"],
   components: {
@@ -365,7 +366,7 @@ export default {
     getData(id, token) {
       return new Promise((resolve, reject) => {
         this.axios
-          .get(`/api/record/detail?id=${id}&token=${token}`)
+          .get(Api.RecDate.Url1 + id + Api.RecDate.Url2 + token)
           .then(data => {
             // console.log(data);
             let num =
@@ -441,7 +442,7 @@ export default {
      */
     getAcco(token) {
       return new Promise((resolve, reject) => {
-        this.axios.get(`api/account?token=${token}`).then(data => {
+        this.axios.get(Api.Account + token).then(data => {
           resolve((this.Acco = data.data.data));
         });
       });
@@ -475,7 +476,7 @@ export default {
         };
 
         this.axios
-          .post(`/api/upload/image?token=${this.Token}`, params, config)
+          .post(Api.UploadImg + this.Token, params, config)
           .then(data => {
             if (data.data.status == true) {
               resolve(
@@ -501,7 +502,10 @@ export default {
         image_keys: this.fileKey
       });
       this.axios
-        .post(`/api/record/update?id=${this.book_id}&token=${this.Token}`, data)
+        .post(
+          Api.RecEdit.Url1 + this.book_id + Api.RecEdit.Url2 + this.Token,
+          data
+        )
         .then(data => {
           if (data.data.status) {
             Toast("修改成功");
@@ -533,7 +537,7 @@ export default {
 
       //调用接口修改数据
       this.axios
-        .post(`/api/record/item/update?itemId=${id}&token=${this.Token}`, data)
+        .post(Api.RecWeoEdit.Url1 + id + Api.RecWeoEdit.Url2 + this.Token, data)
         .then(data => {
           if (data.data.status) {
             Toast("修改成功");
@@ -554,16 +558,14 @@ export default {
         date: this.TimeValue,
         image_keys: this.fileKey
       });
-      this.axios
-        .post(`/api/record/sequel?token=${this.Token}`, data)
-        .then(data => {
-          if (data.data.status) {
-            Toast("记账成功");
-            this.reload();
-          } else {
-            Toast(`${data.data.data}`);
-          }
-        });
+      this.axios.post(Api.sequel + this.Token, data).then(data => {
+        if (data.data.status) {
+          Toast("记账成功");
+          this.reload();
+        } else {
+          Toast(`${data.data.data}`);
+        }
+      });
     },
     /**
      *

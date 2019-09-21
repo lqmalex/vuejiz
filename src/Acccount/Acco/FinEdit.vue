@@ -16,6 +16,7 @@
 import Qs from "qs";
 import { resolve } from "url";
 import { reject } from "q";
+import Api from "../../Api";
 export default {
   components: {},
   data() {
@@ -49,7 +50,7 @@ export default {
     setName(token, id) {
       return new Promise((resolve, reject) => {
         this.axios
-          .get(`api/book/detail?token=${token}`, {
+          .get(Api.BookDate + token, {
             params: {
               book_id: id
             }
@@ -68,13 +69,11 @@ export default {
         book_id: id,
         book_name: this.name
       });
-      this.axios
-        .post(`api/book/update?token=${this.Token}`, data)
-        .then(data => {
-          if (data.data.status == true) {
-            this.$router.push("/Fin");
-          }
-        });
+      this.axios.post(Api.BookEdit + this.Token, data).then(data => {
+        if (data.data.status == true) {
+          this.$router.push("/Fin");
+        }
+      });
     }
   },
   created() {

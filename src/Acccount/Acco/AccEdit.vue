@@ -19,6 +19,7 @@
 
 <script>
 import Qs from "qs";
+import Api from "../../Api";
 export default {
   components: {},
   data() {
@@ -51,7 +52,7 @@ export default {
       let id = this.Eid;
       let Token = localStorage.getItem("token");
       this.axios
-        .get(`api/account/detail?id=${id}&token=${Token}`)
+        .get(Api.AccDate.Url1 + id + Api.AccDate.Url2 + Token)
         .then(data => {
           this.num = data.data.data.type;
           this.name = data.data.data.name;
@@ -72,7 +73,7 @@ export default {
       });
 
       this.axios
-        .post(`api/account/update?id=${id}&token=${Token}`, data)
+        .post(Api.AccEdit.Url1 + id + Api.AccEdit.Url2 + Token, data)
         .then(data => {
           //   console.log(data);
           if (data.data.status == true) {

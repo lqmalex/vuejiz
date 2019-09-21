@@ -14,6 +14,7 @@
 <script>
 import Qs from "qs";
 import { Cell, CellGroup, Button, Dialog } from "vant";
+import Api from "../../Api";
 export default {
   data() {
     return {
@@ -50,7 +51,7 @@ export default {
       });
       let token = localStorage.getItem("token");
       this.axios
-        .post(`api/member/add?token=${token}`, data)
+        .post(Api.MemberAdd + token, data)
         .then(data => {
           //   console.log(data);
           if (data.data.status == true) {

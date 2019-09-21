@@ -42,6 +42,7 @@ import Swpier from "../../components/BookSwipe";
 import { resolve } from "url";
 import { reject } from "q";
 import Qs from "qs";
+import Api from "../../Api";
 export default {
   inject: ["reload"],
   data() {
@@ -95,7 +96,7 @@ export default {
       })
         .then(() => {
           this.axios
-            .post(`api/record/delete?id=${id}&token=${Token}`)
+            .post(Api.Del.Url1 + id + Api.Del.Url2 + Token)
             .then(data => {
               if (data.data.status == true) {
                 _this.path[4].style.display = "none";
@@ -117,7 +118,7 @@ export default {
     getData(Typer, token) {
       return new Promise((resolve, reject) => {
         this.axios
-          .get(`/api/record/account/waiting?token=${token}`, {
+          .get(Api.RecWai + token, {
             params: {
               type: Typer
             }

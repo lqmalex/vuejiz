@@ -128,6 +128,7 @@
 
 <script>
 import Swpier from "../components/BookSwipe";
+import Api from "../Api";
 import {
   Popup,
   Button,
@@ -264,7 +265,7 @@ export default {
 
         let token = localStorage.getItem("token");
         this.axios
-          .get(`/api/record/account?token=${token}`, {
+          .get(Api.Record + token, {
             params: {
               begin_date: this.DateT,
               end_date: this.DateT2,
@@ -273,7 +274,6 @@ export default {
             }
           })
           .then(data => {
-            // console.log(data);
             resolve((this.typer = data.data.data.list));
           });
       });
@@ -291,7 +291,7 @@ export default {
     getLei() {
       let token = localStorage.getItem("token");
       this.axios
-        .get(`/api/category?token=${token}`, {
+        .get(Api.Cate + token, {
           params: {
             type: this.AId
           }
@@ -309,7 +309,7 @@ export default {
         let token = localStorage.getItem("token");
 
         this.axios
-          .get(`/api/record/account/waiting?token=${token}`, {
+          .get(Api.RecWai + token, {
             params: {
               type: 2
             }
@@ -327,7 +327,7 @@ export default {
         let token = localStorage.getItem("token");
 
         this.axios
-          .get(`/api/record/account/waiting?token=${token}`, {
+          .get(Api.RecWai + token, {
             params: {
               type: 1
             }
@@ -345,7 +345,7 @@ export default {
       let token = localStorage.getItem("token");
 
       this.axios
-        .get(`/api/view/home?token=${token}`)
+        .get(Api.View + token)
         .then(data => {
           // console.log(data);
           this.income = data.data.data.account.in;
@@ -365,7 +365,7 @@ export default {
       })
         .then(() => {
           this.axios
-            .post(`api/record/delete?id=${id}&token=${Token}`)
+            .post(Api.Del.Url1 + id + Api.Del.Url2 + Token)
             .then(data => {
               if (data.data.status == true) {
                 _this.path[4].style.display = "none";
