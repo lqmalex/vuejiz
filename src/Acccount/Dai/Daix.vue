@@ -1,27 +1,44 @@
 <template>
   <div class="Set">
     <div class="text" style="color:#969696" v-show="show">暂无信息</div>
-    <div class="swpieTop" style="margin-top:10px">
-      <Swpier v-for="(item,index) in typer" :did="item.id" :key="index">
-        <div class="SwipeCell" slot="swipe" @click="goToDeta(item.id)">
-          <van-cell :border="false" v-if="!item.company_name" title="无" :value="item.paid_money" />
-          <van-cell :border="false" v-else :title="item.company_name" :value="item.paid_money" />
-          <div class="swipe-img" v-if="item.type == 1">
-            <img src="../../assets/images/income.png" alt />
-            <div
-              style="width: 100px;position: absolute;top: 32px;left: 20px;border: 1px solid #5a8435;border-radius: 21px;"
-            >{{item.date}}</div>
-          </div>
-          <div class="swipe-img" v-else>
-            <img src="../../assets/images/expen.png" alt />
-            <div
-              style="width: 100px;position: absolute;top: 32px;left: 20px;border: 1px solid red;border-radius: 21px;"
-            >{{item.date}}</div>
-          </div>
+    <van-pull-refresh v-model="isLoading" @refresh="ChangePage">
+      <!-- <p style="color: #969696;">下拉刷新</p> -->
+      <van-list v-model="loading" :finished="finished" finished-text="没有更多了" @load="onLoad">
+        <div class="swpieTop" style="margin-top:10px">
+          <Swpier v-for="(item,index) in typer" :did="item.id" :key="index">
+            <div class="SwipeCell" slot="swipe" @click="goToDeta(item.id)">
+              <van-cell
+                :border="false"
+                v-if="!item.company_name"
+                title="无"
+                :value="item.paid_money"
+              />
+              <van-cell :border="false" v-else :title="item.company_name" :value="item.paid_money" />
+              <div class="swipe-img" v-if="item.type == 1">
+                <img src="../../assets/images/income.png" alt />
+                <div
+                  style="width: 100px;position: absolute;top: 32px;left: 30px;border: 1px solid #5a8435;border-radius: 21px;"
+                >{{item.date}}</div>
+              </div>
+              <div class="swipe-img" v-else>
+                <img src="../../assets/images/expen.png" alt />
+                <div
+                  style="width: 100px;position: absolute;top: 32px;left: 30px;border: 1px solid red;border-radius: 21px;"
+                >{{item.date}}</div>
+              </div>
+            </div>
+            <van-button
+              @click="del(item.id)"
+              style="height:65px"
+              square
+              type="danger"
+              text="删除"
+              slot="func"
+            />
+          </Swpier>
         </div>
-        <van-button @click="del" style="height:58px" square type="danger" text="删除" slot="func" />
-      </Swpier>
-    </div>
+      </van-list>
+    </van-pull-refresh>
   </div>
 </template>
 
@@ -36,7 +53,11 @@ import {
   DatetimePicker,
   Uploader,
   Toast,
-  Dialog
+  Dialog,
+  Pagination,
+  Loading,
+  List,
+  PullRefresh
 } from "vant";
 import Swpier from "../../components/BookSwipe";
 import { resolve } from "url";
@@ -50,7 +71,14 @@ export default {
       Type: "",
       Token: "",
       typer: [],
-      show: false
+      show: false,
+      Sum: 0,
+      currentPage: 5,
+      Dis: "block",
+      List: [],
+      isLoading: false,
+      loading: false,
+      finished: false
     };
   },
   components: {
@@ -64,7 +92,11 @@ export default {
     [DatetimePicker.name]: DatetimePicker,
     [Uploader.name]: Uploader,
     [Toast.name]: Toast,
-    [Dialog.name]: Dialog
+    [Dialog.name]: Dialog,
+    [Pagination.name]: Pagination,
+    [Loading.name]: Loading,
+    [List.name]: List,
+    [PullRefresh.name]: PullRefresh
   },
   methods: {
     /**
@@ -72,8 +104,47 @@ export default {
      */
     setType() {
       return new Promise((resolve, reject) => {
-        resolve((this.Type = this.$route.params.id == 1 ? 1 : 2));
+        resolve((this.Type = this.$route.params.id));
       });
+    },
+    ChangePage() {
+      this.reload();
+    },
+    /**
+     * 下滑加载
+     */
+    onLoad() {
+      let num = this.currentPage - 5;
+      this.isLoading = false;
+      if (this.List.length == 0) {
+        this.setType().then(() => {
+          this.getData("", "").then(() => {
+            this.loading = false;
+          });
+        });
+      } else {
+        // 异步更新数据
+        setTimeout(() => {
+          for (let i = num; i < this.currentPage; i++) {
+            if (this.List[i] === undefined) {
+              this.loading = false;
+              this.finished = true;
+              return;
+            } else {
+              this.typer.push(this.List[i]);
+            }
+          }
+          // 加载状态结束
+          this.currentPage += 5;
+          this.loading = false;
+          this.isLoading = false;
+
+          // 数据全部加载完成
+          if (this.typer.length >= this.Sum) {
+            this.finished = true;
+          }
+        }, 1000);
+      }
     },
     /**
      * 获取Token
@@ -86,9 +157,8 @@ export default {
     /**
      * 删除
      */
-    del(_this) {
+    del(id) {
       //获取id值
-      let id = _this.path[4].attributes[2].nodeValue;
       let Token = localStorage.getItem("token");
       Dialog.confirm({
         title: "提示",
@@ -98,10 +168,11 @@ export default {
           this.axios
             .post(Api.Del.Url1 + id + Api.Del.Url2 + Token)
             .then(data => {
-              if (data.data.status == true) {
-                _this.path[4].style.display = "none";
+              if (data.data.status) {
                 //调用刷新方法
                 this.reload();
+              } else {
+                Toast(`${data.data.data}`);
               }
             })
             .catch(err => {
@@ -117,6 +188,8 @@ export default {
      */
     getData(Typer, token) {
       return new Promise((resolve, reject) => {
+        Typer = Typer == "" ? this.Type : Typer;
+        token = token == "" ? this.Token : token;
         this.axios
           .get(Api.RecWai + token, {
             params: {
@@ -124,7 +197,13 @@ export default {
             }
           })
           .then(data => {
-            resolve((this.typer = data.data.data.list));
+            if (data.data.data.list.length == 0) {
+              this.finished = true;
+            }
+            resolve(
+              (this.List = data.data.data.list),
+              (this.Sum = data.data.data.list.length)
+            );
           });
       });
     },
@@ -133,7 +212,7 @@ export default {
      */
     setData() {
       return new Promise((resolve, reject) => {
-        this.typer.forEach((item, index) => {
+        this.List.forEach((item, index) => {
           let num = item.total_money - item.paid_money;
           item.company_name =
             item.type == 1
@@ -148,13 +227,22 @@ export default {
     goToDeta(id) {
       localStorage.setItem("book_id", id);
       this.$router.push("/DeTa");
+    },
+    Loading(mess, num) {
+      Toast.loading({
+        mask: true,
+        message: mess,
+        duration: num
+      });
     }
   },
   created() {
+    this.Loading("加载中...", 0);
     this.getToken().then(() => {
       this.setType().then(() => {
         this.getData(this.Type, this.Token).then(() => {
-          this.typer.length > 0
+          this.Loading("加载中...", 0.5);
+          this.List.length > 0
             ? (this.setData(), (this.show = false))
             : (this.show = true);
         });
@@ -164,9 +252,27 @@ export default {
 };
 </script>
 
-<style scoped>
-.SwipeCell {
-  height: 58px;
-  position: relative;
+<style scoped lang="less">
+.Set {
+  .SwipeCell {
+    height: 65px;
+    position: relative;
+  }
+
+  .Login {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(110, 110, 110, 0.4);
+    z-index: 9999;
+    text-align: center;
+  }
+
+  .van-loading {
+    position: absolute;
+    top: 45%;
+    left: 45%;
+  }
 }
 </style>

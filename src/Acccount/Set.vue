@@ -36,7 +36,7 @@
 
 <script>
 import Mainr from "../components/Main";
-import { Cell, CellGroup, Button, Dialog } from "vant";
+import { Cell, CellGroup, Button, Dialog, Toast } from "vant";
 import Api from "../Api";
 export default {
   components: {
@@ -44,7 +44,8 @@ export default {
     [Cell.name]: Cell,
     [CellGroup.name]: CellGroup,
     [Button.name]: Button,
-    [Dialog.name]: Dialog
+    [Dialog.name]: Dialog,
+    [Toast.name]: Toast
   },
   methods: {
     /**
@@ -93,73 +94,80 @@ export default {
     goToSetMe() {
       this.$router.push("/SetMer");
     }
+  },
+  created() {
+    Toast.clear();
   }
 };
 </script>
 
-<style scoped>
+<style scoped lang="less">
 .Set {
   width: 100%;
-}
 
-.toBack {
-  height: 35px;
-  background: #50af08;
-  text-align: left;
-  padding: 10px;
-  position: relative;
-}
+  .toBack {
+    height: 35px;
+    background: #50af08;
+    text-align: left;
+    padding: 10px;
+    position: relative;
 
-.toBack-text {
-  position: absolute;
-  left: 45%;
-  color: #fff;
-  top: 25%;
-  font-size: 18px;
-}
+    .toBack-text {
+      position: absolute;
+      left: 45%;
+      color: #fff;
+      top: 25%;
+      font-size: 18px;
+    }
 
-.toBack > img {
-  height: 100%;
-}
+    img {
+      height: 100%;
+    }
+  }
 
-.Func-main {
-  margin-top: 15px;
-  background: #fff;
-  overflow: hidden;
-}
+  .Func-main {
+    margin-top: 15px;
+    background: #fff;
+    overflow: hidden;
 
-.Func-main-text {
-  position: relative;
-  border-bottom: 1px solid #ccc;
-  color: #bfbfbf;
-  text-align: left;
-  padding: 10px;
-  font-size: 20px;
-}
+    .Func-main-text {
+      position: relative;
+      border-bottom: 1px solid #ccc;
+      color: #bfbfbf;
+      text-align: left;
+      padding: 10px;
+      font-size: 20px;
 
-.Func-main-text img {
-  width: 20px;
-}
+      img {
+        width: 20px;
+      }
 
-.Func-main-text-icon {
-  position: absolute;
-  right: 10px;
-  top: 10px;
-}
+      .Func-main-text-icon {
+        position: absolute;
+        right: 10px;
+        top: 10px;
 
-.Func-main-text-icon img {
-  width: 20px;
-}
+        img {
+          width: 20px;
+        }
+      }
+    }
+  }
 
-.SetBut {
-  margin-top: 15px;
-  padding: 0 10px;
-}
+  .SetBut {
+    margin-top: 15px;
+    padding: 0 10px;
 
-.SetBut button {
-  width: 100%;
-  color: #fff;
-  height: 45px;
-  background: #50af08;
+    button {
+      width: 100%;
+      color: #fff;
+      height: 45px;
+      background: #50af08;
+    }
+  }
+
+  button {
+    border: 0;
+  }
 }
 </style>

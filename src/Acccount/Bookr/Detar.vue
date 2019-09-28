@@ -20,8 +20,12 @@
 </template>
 
 <script>
+import { Toast } from "vant";
 export default {
   inject: ["reload"],
+  components: {
+    [Toast.name]: Toast
+  },
   methods: {
     /**
      *返回上一页
@@ -32,48 +36,53 @@ export default {
     goTo() {
       this.reload();
     }
+  },
+  created() {
+    Toast.clear();
   }
 };
 </script>
 
-<style scoped>
-.toBack {
-  height: 80px;
-  background: #50af08;
-  text-align: left;
-  padding: 10px;
-  margin-bottom: 5px;
-}
+<style scoped lang="less">
+.date {
+  .toBack {
+    height: 80px;
+    background: #50af08;
+    text-align: left;
+    padding: 10px;
+    margin-bottom: 5px;
 
-.Back {
-  height: 35px;
-  position: relative;
-}
+    .toBack-text {
+      position: absolute;
+      left: 38%;
+      color: #fff;
+      top: 14%;
+      font-size: 18px;
+    }
+  }
 
-.toBack-text {
-  position: absolute;
-  left: 38%;
-  color: #fff;
-  top: 14%;
-  font-size: 18px;
-}
+  .Back {
+    height: 35px;
+    position: relative;
 
-.Back > img {
-  height: 100%;
-}
+    img {
+      height: 100%;
+    }
+  }
 
-.to-flex {
-  display: flex;
-  margin-top: 26px;
-}
+  .to-flex {
+    display: flex;
+    margin-top: 26px;
 
-.to-flex a {
-  flex: 1;
-  text-align: center;
-  color: #fff;
-}
+    a {
+      flex: 1;
+      text-align: center;
+      color: #fff;
+    }
+  }
 
-.router-link-exact-active {
-  border-bottom: 2px solid #fff;
+  .router-link-exact-active {
+    border-bottom: 2px solid #fff;
+  }
 }
 </style>

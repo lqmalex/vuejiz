@@ -19,7 +19,7 @@ axios.defaults.baseURL = process.env.API_ROOT
 Vue.prototype.$echarts = echarts
 
 Vue.config.productionTip = false
-
+// Vue.config.silent = true
 
 /* eslint-disable no-new */
 new Vue({

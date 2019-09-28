@@ -1,5 +1,57 @@
 <template>
   <div class="date">
+    <div v-show="showr3" class="Follow">
+      <div class="Follow-main">
+        <div class="toBack">
+          <img src="../../assets/images/Back.png" @click="CloseFollow" />
+          <span class="toBack-text">后续记账</span>
+        </div>
+        <div class="func-branch">
+          <span class="func-branch-text">{{Tstring}}金额</span>
+          <input type="text" placeholder="0.00" v-model="total_money" />
+        </div>
+        <div class="func-branch">
+          <span class="func-branch-text">{{Tstring}}账户</span>
+          <van-button type="primary" class="vant-but" v-if="!Amess" @click="showPopuprr">请选择</van-button>
+          <van-button type="primary" class="vant-but" v-else @click="showPopuprr">{{Amess}}</van-button>
+          <van-popup v-model="showrr">
+            <van-radio-group v-model="Aid">
+              <van-cell-group>
+                <van-cell title="请选择" clickable @click="Aid = '';setAmess('')">
+                  <van-radio slot="right-icon" name />
+                </van-cell>
+                <van-cell
+                  v-for="(item,index) in Acco"
+                  :key="index"
+                  :title="item.name"
+                  clickable
+                  @click="Aid = item.id;setAmess(item.name)"
+                >
+                  <van-radio slot="right-icon" :name="item.id" />
+                </van-cell>
+              </van-cell-group>
+            </van-radio-group>
+          </van-popup>
+        </div>
+        <div class="func-branch branchr" style="height:80px">
+          <span class="func-branch-text">收入凭证</span>
+          <van-uploader :after-read="afterRead2" v-model="fileList2" :before-delete="beforeDel" />
+        </div>
+        <div class="func-branch">
+          <span class="func-branch-text">{{Tstring}}日期</span>
+          <van-button type="primary" class="vant-but" @click="showPopuprr2">{{TimeValue}}</van-button>
+          <van-popup round position="bottom" style="width: 100%;padding: 0;" v-model="showrr2">
+            <van-datetime-picker
+              v-model="currentDate"
+              @cancel="setShow"
+              @confirm="getDate2"
+              type="date"
+            ></van-datetime-picker>
+          </van-popup>
+        </div>
+        <button @click="SubFollow">保存</button>
+      </div>
+    </div>
     <div class="toBack">
       <img src="../../assets/images/Back.png" @click="goToFrount" />
       <span class="toBack-text">{{type_string}}详情</span>
@@ -108,43 +160,33 @@
       </div>
       <div class="func-branch branchr">
         <span class="func-branch-text">收入凭证</span>
-        <van-button
-          type="primary"
-          v-if="item.images.length > 0"
-          class="vant-but"
-          @click="showPopuprw(item.images)"
-        >查看图片</van-button>
-        <van-uploader :name="index" :after-read="afterRead" />
-        <van-popup
-          v-model="showrw"
-          round
-          position="bottom"
-          :style="{ padding:'0',width:'100%',height: '40%' }"
+
+        <div
+          style="padding-top: 8px;width:170px;display:flex;flex-wrap:wrap;justify-content: flex-end;"
         >
-          <!-- 如果遍历原先对象主键会出错 -->
-          <img v-for="(it,ke) in fileList" :key="ke" :src="it.thumbnail" alt />
-        </van-popup>
+          <div v-for="(it,ke) in item.images" :key="ke" style="height:80px;width:80px">
+            <img :src="it.thumbnail" @click="viewPic2(index,ke)" style="height:100%;width:100%" alt />
+          </div>
+
+          <van-uploader :name="index" style="width:80px" :after-read="afterRead" />
+        </div>
       </div>
     </div>
 
     <div v-show="!Tshow" class="func-branch branchr">
       <span class="func-branch-text">收入凭证</span>
-      <van-button
-        type="primary"
-        v-show="Lshow"
-        class="vant-but"
-        @click="showPopuprwr(Items[0].images)"
-      >查看图片</van-button>
-      <van-uploader :name="0" :after-read="afterRead" />
-      <van-popup
-        v-model="showrwr"
-        round
-        position="bottom"
-        :style="{ padding:'0',width:'100%',height: '40%' }"
+      <div
+        v-if="Imgs.length > 0"
+        style="padding-top: 8px;width:170px;display:flex;flex-wrap:wrap;justify-content: flex-end;"
       >
-        <!-- 如果遍历原先对象主键会出错 -->
-        <img v-for="(it,ke) in fileList" :key="ke" :src="it.thumbnail" alt />
-      </van-popup>
+        <div v-for="(it,ke) in Imgs" :key="ke" style="height:80px;width:80px">
+          <img :src="it.thumbnail" @click="viewPic(ke)" style="height:100%;width:100%" alt />
+        </div>
+        <van-uploader :name="0" style="width:80px" :after-read="afterRead" />
+      </div>
+      <div v-else>
+        <van-uploader :name="0" style="width:80px" :after-read="afterRead" />
+      </div>
     </div>
     <div class="Deta-text">备注</div>
     <div class="func-branch">
@@ -161,59 +203,18 @@
     <div class="func-top">
       <div class="func-branch">
         <span class="func-branch-text">记账人</span>
-        <span class="vant-but vant-text">{{Meobj}}</span>
+        <span class="vant-but vant-text" style="padding: 0;padding-right: 10px;">{{Meobj}}</span>
       </div>
       <div class="func-branch">
-        <span class="func-branch-text">记账日期</span>
-        <span class="vant-but vant-text">{{loaTime}}</span>
+        <span class="func-branch-text" style="flex: 0.3;">记账日期</span>
+        <span class="vant-but vant-text" style="padding: 0;padding-right: 10px;">{{loaTime}}</span>
       </div>
       <div class="func-branch">
-        <span class="func-branch-text">更新日期</span>
-        <span class="vant-but vant-text">{{newTime}}</span>
+        <span class="func-branch-text" style="flex: 0.3;">更新日期</span>
+        <span class="vant-but vant-text" style="padding: 0;padding-right: 10px;">{{newTime}}</span>
       </div>
       <div class="footer-but" v-show="Tshow">
         <van-button type="primary" class="but vant-but" @click="showPopupr3">后续付款</van-button>
-        <van-popup v-model="showr3">
-          <div class="func-branch">
-            <span class="func-branch-text">{{Tstring}}金额</span>
-            <input type="text" placeholder="0.00" v-model="total_money" />
-          </div>
-          <div class="func-branch">
-            <span class="func-branch-text">{{Tstring}}账户</span>
-            <van-button type="primary" class="vant-but" v-if="!Amess" @click="showPopuprr">请选择</van-button>
-            <van-button type="primary" class="vant-but" v-else @click="showPopuprr">{{Amess}}</van-button>
-            <van-popup v-model="showrr">
-              <van-radio-group v-model="Aid">
-                <van-cell-group>
-                  <van-cell title="请选择" clickable @click="Aid = '';setAmess('')">
-                    <van-radio slot="right-icon" name />
-                  </van-cell>
-                  <van-cell
-                    v-for="(item,index) in Acco"
-                    :key="index"
-                    :title="item.name"
-                    clickable
-                    @click="Aid = item.id;setAmess(item.name)"
-                  >
-                    <van-radio slot="right-icon" :name="item.id" />
-                  </van-cell>
-                </van-cell-group>
-              </van-radio-group>
-            </van-popup>
-          </div>
-          <div class="func-branch branchr">
-            <span class="func-branch-text">收入凭证</span>
-            <van-uploader :after-read="afterRead2" />
-          </div>
-          <div class="func-branch">
-            <span class="func-branch-text">{{Tstring}}日期</span>
-            <van-button type="primary" class="vant-but" @click="showPopuprr2">{{TimeValue}}</van-button>
-            <van-popup v-model="showrr2" round position="bottom" :style="{ height: '40%' }">
-              <van-datetime-picker v-model="currentDate" @confirm="getDate2" type="date"></van-datetime-picker>
-            </van-popup>
-          </div>
-          <button @click="SubFollow">保存</button>
-        </van-popup>
       </div>
     </div>
   </div>
@@ -233,7 +234,11 @@ import {
   DatetimePicker,
   Uploader,
   Toast,
-  Dialog
+  Dialog,
+  Loading,
+  DropdownMenu,
+  DropdownItem,
+  ImagePreview
 } from "vant";
 import Api from "../../Api";
 export default {
@@ -248,7 +253,11 @@ export default {
     [DatetimePicker.name]: DatetimePicker,
     [Uploader.name]: Uploader,
     [Toast.name]: Toast,
-    [Dialog.name]: Dialog
+    [Dialog.name]: Dialog,
+    [Loading.name]: Loading,
+    [DropdownMenu.name]: DropdownMenu,
+    [DropdownItem.name]: DropdownItem,
+    [ImagePreview.name]: ImagePreview
   },
   data() {
     return {
@@ -302,12 +311,19 @@ export default {
       TimeValue: "",
       //原始记录id
       Yid: "",
+      Dis: "block",
+      DisType: "none",
+      DisType2: "none",
       fileList: [],
       Items: [],
+      Imgs: [],
+      Imgs2: [],
       itemId: "",
-      fileKey: "",
+      fileKey: [],
       Lshow: false,
       timeValue: [],
+      fileList2: [],
+      option1: [{ text: "请选择", value: "" }],
       show3: false,
       show2: false,
       show: false,
@@ -341,6 +357,9 @@ export default {
         time.getDate()
       ).toString();
     },
+    setShow() {
+      this.showrr2 = false;
+    },
     /**
      * 获取账单id
      */
@@ -368,7 +387,6 @@ export default {
         this.axios
           .get(Api.RecDate.Url1 + id + Api.RecDate.Url2 + token)
           .then(data => {
-            // console.log(data);
             let num =
               parseFloat(data.data.data.total_money) -
               parseFloat(data.data.data.paid_money);
@@ -379,6 +397,7 @@ export default {
                 (this.AcId = data.data.data.items[0].account_id),
                 (this.Yid = data.data.data.id),
                 (this.Items = data.data.data.items),
+                (this.Imgs = data.data.data.items[0].images),
                 (this.Tshow = num == 0 ? false : true),
                 (this.Tmoney = data.data.data.total_money),
                 (this.Typer = num == 0 ? "已结清" : `未结清(${num})`),
@@ -393,6 +412,37 @@ export default {
               );
             });
           });
+      });
+    },
+    viewPic(num) {
+      ImagePreview({
+        images: this.Imgs2,
+        startPosition: num,
+        maxZoom: 3,
+        minZoom: 1 / 3,
+        onClose() {
+          // do something
+        }
+      });
+    },
+    viewPic2(key, num) {
+      let arr = [];
+      this.Items.forEach((item, index) => {
+        if (index == key) {
+          item.images.forEach((val, key2) => {
+            arr.push(val.thumbnail);
+          });
+        }
+      });
+
+      ImagePreview({
+        images: arr,
+        startPosition: num,
+        maxZoom: 3,
+        minZoom: 1 / 3,
+        onClose() {
+          // do something
+        }
       });
     },
     /**
@@ -447,6 +497,15 @@ export default {
         });
       });
     },
+    setOption() {
+      this.Acco.forEach((item, index) => {
+        let Obj = {
+          text: item.name,
+          value: item.id
+        };
+        this.option1.push(Obj);
+      });
+    },
     /**
      * 文件读取完毕回调函数
      */
@@ -460,11 +519,20 @@ export default {
     afterRead2(file) {
       this.SubImg(file.file).then(() => {});
     },
+    beforeDel(file) {
+      this.fileList2.forEach((item, index) => {
+        if (item.content == file.content) {
+          this.fileList2.splice(index, 1);
+          this.fileKey.splice(index, 1);
+        }
+      });
+    },
     /**
      * 上传图片
      */
     SubImg(file) {
       return new Promise((resolve, reject) => {
+        this.Loading("上传图片中...", 0);
         //new 一个FormData格式的参数
         let params = new FormData();
         params.append("file", file);
@@ -479,11 +547,10 @@ export default {
           .post(Api.UploadImg + this.Token, params, config)
           .then(data => {
             if (data.data.status == true) {
-              resolve(
-                (this.fileKey = data.data.data.file.fileKey),
-                Toast("文件上传成功")
-              );
+              Toast("文件上传成功");
+              resolve(this.fileKey.push(data.data.data.file.fileKey));
             } else {
+              this.Loading("上传图片中...", 0.5);
               Toast(`${data.data.data}`);
             }
           });
@@ -493,13 +560,21 @@ export default {
      * 修改
      */
     SubEdit() {
+      this.Loading("提交数据中", 0);
+
       this.Tmoneyg = this.Tmoneyg == "" ? this.Tmoney : this.Tmoneyg;
       this.Objg = this.Objg == "" ? this.Obj : this.Objg;
+
+      if (this.Tmoneyg > 99999999) {
+        Toast("您输入的金额有误");
+        return;
+      }
+
       let data = Qs.stringify({
         total_money: this.Tmoneyg,
         company_name: this.Objg,
         remark: this.remark,
-        image_keys: this.fileKey
+        image_keys: this.fileKey[0]
       });
       this.axios
         .post(
@@ -508,9 +583,11 @@ export default {
         )
         .then(data => {
           if (data.data.status) {
+            this.Loading("提交数据中", 0.5);
             Toast("修改成功");
             this.reload();
           } else {
+            this.Loading("提交数据中", 0.5);
             Toast(`${data.data.data}`);
           }
         });
@@ -519,6 +596,7 @@ export default {
      * 未结清修改
      */
     setEditWei() {
+      this.Loading("提交数据中...", 0);
       //获取id key代表主键
       let id = this.Items[this.key].id;
       //利用三元判断是否为空 来填写相应的值
@@ -532,7 +610,7 @@ export default {
         money: this.Pmoney,
         account_id: this.AId,
         date: this.DateT,
-        image_keys: this.fileKey
+        image_keys: this.fileKey[0]
       });
 
       //调用接口修改数据
@@ -540,9 +618,11 @@ export default {
         .post(Api.RecWeoEdit.Url1 + id + Api.RecWeoEdit.Url2 + this.Token, data)
         .then(data => {
           if (data.data.status) {
+            this.Loading("提交数据中", 0.5);
             Toast("修改成功");
             this.reload();
           } else {
+            this.Loading("提交数据中", 0.5);
             Toast(`${data.data.data}`);
           }
         });
@@ -551,20 +631,41 @@ export default {
      * 后续记账提交
      */
     SubFollow() {
+      var key = "";
+      if (this.fileKey.length > 0) {
+        this.fileKey.forEach((item, index) => {
+          if (index != this.fileKey.length - 1) {
+            key += item + ",";
+          } else {
+            key += item;
+          }
+        });
+      }
+
+      this.Loading("提交数据中...", 0);
       let data = Qs.stringify({
         record_id: this.Yid,
         money: this.total_money,
         account_id: this.Aid,
         date: this.TimeValue,
-        image_keys: this.fileKey
+        image_keys: key
       });
       this.axios.post(Api.sequel + this.Token, data).then(data => {
         if (data.data.status) {
+          this.Loading("提交数据中...", 0.5);
           Toast("记账成功");
           this.reload();
         } else {
+          this.Loading("提交数据中...", 0.5);
           Toast(`${data.data.data}`);
         }
+      });
+    },
+    Loading(mess, num) {
+      Toast.loading({
+        mask: true,
+        message: mess,
+        duration: num
       });
     },
     /**
@@ -600,6 +701,9 @@ export default {
     showPopupr3() {
       this.showr3 = true;
     },
+    CloseFollow() {
+      this.showr3 = false;
+    },
     showPopuprr() {
       this.showrr = true;
     },
@@ -623,132 +727,196 @@ export default {
     }
   },
   created() {
+    this.Loading("加载中...", 0);
     this.getBookId().then(() => {
       this.getCurrent();
       this.getData(this.book_id, this.Token).then(() => {
+        this.getAcco(this.Token).then(() => {
+          this.setOption();
+          this.Imgs.forEach((item, index) => {
+            this.Imgs2.push(item.thumbnail);
+          });
+
+          this.Loading("加载中...", 0.5);
+        });
         if (this.Items.length == 1) {
           this.Lshow = this.Items[0].images.length > 0 ? true : false;
         }
       });
-      this.getAcco(this.Token).then(() => {});
     });
   }
 };
 </script>
 
-<style>
+<style scoped lang="less">
 .date {
   margin-bottom: 80px;
-}
 
-.toBack {
-  height: 35px;
-  background: #50af08;
-  text-align: left;
-  padding: 10px;
-  margin-bottom: 5px;
-  position: relative;
-}
+  .Follow {
+    position: fixed;
+    width: 100%;
+    bottom: 0;
+    top: 0;
+    z-index: 999;
+    background: #fff;
 
-.toBack-text {
-  position: absolute;
-  left: 38%;
-  color: #fff;
-  top: 14%;
-  font-size: 18px;
-}
+    .Follow-main {
+      position: relative;
+      height: 100%;
+    }
+  }
 
-.toBack > img {
-  height: 100%;
-}
+  .toBack {
+    height: 35px;
+    background: #50af08;
+    text-align: left;
+    padding: 10px;
+    margin-bottom: 5px;
+    position: relative;
 
-.func-branch {
-  text-align: left;
-  display: flex;
-  height: 50px;
-  background: #fff;
-  border-bottom: 2px solid #ccc;
-}
+    .toBack-text {
+      position: absolute;
+      left: 38%;
+      color: #fff;
+      top: 14%;
+      font-size: 18px;
+    }
 
-.func-branch-text {
-  flex: 1;
-  line-height: 50px;
-  padding-left: 6px;
-}
+    img {
+      height: 100%;
+    }
+  }
 
-.vant-but {
-  background: #fff;
-  border: 0;
-  color: #969696;
-  flex: 1;
-  text-align: right;
-  position: relative;
-  padding: 0 24px;
-}
+  .func-branch {
+    text-align: left;
+    display: flex;
+    height: 50px;
+    background: #fff;
+    border-bottom: 2px solid #ccc;
 
-.func-branch > input {
-  flex: 1;
-  border: 0;
-  height: 50px;
-  text-align: right;
-  padding-right: 6px;
-}
+    .func-branch-text {
+      display: flex;
+      align-items: center;
+      flex: 1;
+      padding-left: 6px;
+    }
 
-.van-popup {
-  width: 300px;
-  padding: 20px 20px;
-  height: 60%;
-}
+    input {
+      flex: 1;
+      border: 0;
+      height: 50px;
+      text-align: right;
+      padding-right: 6px;
+    }
+  }
 
-.img {
-  width: 20px;
-  position: absolute;
-  top: 9px;
-  right: 5px;
-}
+  .vant-but {
+    background: #fff;
+    border: 0;
+    color: #969696;
+    flex: 1;
+    text-align: right;
+    position: relative;
+    padding: 0 24px;
+    margin: 0;
+    height: 100%;
+  }
 
-button,
-.but {
-  margin-top: 15px;
-  width: 100%;
-  height: 37px;
-  background: #50af08;
-  color: #fff;
-  text-align: center;
-}
+  .van-popup {
+    padding: 20px 20px;
+    width: 80%;
+    border-radius: 9px;
+  }
 
-.vant-text {
-  line-height: 50px;
-}
+  .img {
+    width: 15px;
+    position: absolute;
+    top: 17px;
+    right: 5px;
+  }
 
-.Deta-text {
-  color: #969696;
-  font-size: 14px;
-  text-align: left;
-  padding-left: 5px;
-}
+  button,
+  .but {
+    margin-top: 15px;
+    width: 100%;
+    height: 37px;
+    background: #50af08;
+    color: #fff;
+    text-align: center;
+  }
 
-textarea {
-  width: 100%;
-  height: 80px;
-  border: 0;
-  border-bottom: 2px solid #ccc;
-}
+  .vant-text {
+    line-height: 50px;
+  }
 
-.func-top {
-  margin-top: 20px;
-}
+  .Deta-text {
+    color: #969696;
+    font-size: 14px;
+    text-align: left;
+    padding-left: 5px;
+  }
 
-.branchr {
-  height: 80px;
-}
+  textarea {
+    width: 100%;
+    height: 80px;
+    border: 0;
+    border-bottom: 2px solid #ccc;
+  }
 
-.footer-but {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  padding: 10px 10px;
-  background: #fff;
+  .func-top {
+    margin-top: 20px;
+  }
+
+  .branchr {
+    height: 100%;
+  }
+
+  .footer-but {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 10px 10px;
+    background: #fff;
+  }
+
+  .Login,
+  .Login-Img {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(110, 110, 110, 0.4);
+    z-index: 9999;
+    text-align: center;
+  }
+
+  .Login-text {
+    position: absolute;
+    top: 42%;
+    left: 35%;
+  }
+
+  .van-loading {
+    position: absolute;
+    top: 45%;
+    left: 45%;
+  }
+
+  .van-picker {
+    border-radius: 9px;
+  }
+
+  .van-dropdown-item {
+    top: 122px;
+  }
+
+  .show_but {
+    border: 0;
+  }
+
+  button {
+    border: 0;
+  }
 }
 </style>

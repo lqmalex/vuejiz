@@ -38,21 +38,26 @@ export default {
 };
 </script>
 
-<style>
+<style lang="less">
 .footer-item {
   flex: 1;
-}
 
-/* .footer-item:nth-child(2) {
-  position: relative;
-  top: -30px;
-}
+  .footer-botton {
+    height: 100%;
+    margin-bottom: 2px;
 
-.footer-item:nth-child(2) .footer-botton img {
-  width: 60px;
-} */
+    img {
+      width: 30px;
+    }
 
-.footer-botton img {
-  width: 35px;
+    & > a {
+      display: block;
+
+      & > div {
+        font-size: 14px;
+        line-height: 6px;
+      }
+    }
+  }
 }
 </style>

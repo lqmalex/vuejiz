@@ -1,6 +1,7 @@
 <template>
   <div id="app">
-    <router-view v-if="isRouterAlive" />
+    <router-view v-if="isRouterAlive" @setTime="(res,res2) => {Date1 = res;Date2=res2}" />
+    <!-- <router-view v-if="isRouterAlive" :Date1.sync="Date1" :Date2.sync="Date2" /> -->
     <footerr v-show="show">
       <footerItem slot="footerItem" path="/book">
         <img src="./assets/images/Deta.png" slot="footer-img" alt />
@@ -27,6 +28,7 @@ import footerItem from "./components/footer-item";
 import { param } from "../../Vue/webpack3/douban/src/assets/jsonp";
 import { reject } from "q";
 import { resolve } from "url";
+import Api from "./Api";
 export default {
   components: {
     footerr,
@@ -38,7 +40,9 @@ export default {
       isRouterAlive: true,
       Token: "",
       Book_id: "",
-      type: true
+      type: true,
+      Date1: "",
+      Date2: ""
     };
   },
   methods: {
@@ -59,9 +63,16 @@ export default {
      */
     ReqLogin() {
       let token = localStorage.getItem("token");
-      // console.log(token);
+      let type = false;
+
+      this.axios.get(Api.User + token).then(data => {
+        if (!data.data.status) {
+          type = true;
+          this.$router.push("/login");
+        }
+      });
       //防止用户使用游览器消除token而无法判断
-      if (token == null || token == "null" || token == "") {
+      if (token == null || token == "null" || token == "" || type) {
         this.$router.push("/login");
       }
     },
@@ -80,7 +91,9 @@ export default {
    */
   provide() {
     return {
-      reload: this.reload
+      reload: this.reload,
+      Date1: this.Date1,
+      Date2: this.Date2
     };
   },
   created() {
@@ -109,7 +122,6 @@ body {
 * {
   margin: 0;
   padding: 0;
-  /* color: #969696; */
 }
 
 a {

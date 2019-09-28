@@ -75,62 +75,64 @@ export default {
      *
      */
   },
-  created() {}
+  created() {
+    Toast.clear();
+  }
 };
 </script>
 
-<style scoped>
+<style scoped lang="less">
 .Dai {
   width: 100%;
-}
 
-.toBack {
-  height: 80px;
-  background: #50af08;
-  text-align: left;
-  padding: 10px;
-  margin-bottom: 5px;
-}
+  .toBack {
+    height: 80px;
+    background: #50af08;
+    text-align: left;
+    padding: 10px;
+    margin-bottom: 5px;
 
-.Back {
-  height: 35px;
-  position: relative;
-}
+    img {
+      height: 100%;
+    }
+  }
 
-.to-flex {
-  display: flex;
-  margin-top: 26px;
-}
+  .Back {
+    height: 35px;
+    position: relative;
+  }
 
-.to-flex a {
-  flex: 1;
-  text-align: center;
-  color: #fff;
-}
+  .to-flex {
+    display: flex;
+    margin-top: 26px;
 
-.vant-but {
-  background: #fff !important;
-  border: 0;
-  color: #969696 !important;
-  flex: 1;
-  text-align: right;
-  position: relative;
-  padding: 0 24px;
-}
+    a {
+      flex: 1;
+      text-align: center;
+      color: #fff;
+    }
+  }
 
-.toBack-text {
-  position: absolute;
-  left: 40%;
-  color: #fff;
-  top: 25%;
-  font-size: 18px;
-}
+  .vant-but {
+    background: #fff !important;
+    border: 0;
+    color: #969696 !important;
+    flex: 1;
+    text-align: right;
+    position: relative;
+    padding: 0 24px;
+  }
 
-.toBack img {
-  height: 100%;
-}
+  .toBack-text {
+    position: absolute;
+    left: 40%;
+    color: #fff;
+    top: 25%;
+    font-size: 18px;
+  }
 
-.router-link-exact-active {
-  border-bottom: 2px solid #fff;
+  .router-link-exact-active {
+    border-bottom: 2px solid #fff;
+  }
 }
 </style>

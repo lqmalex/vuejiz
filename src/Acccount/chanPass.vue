@@ -25,8 +25,9 @@
 
 <script>
 import Qs from "qs";
-import { Cell, CellGroup, Button, Dialog } from "vant";
+import { Cell, CellGroup, Button, Dialog, Toast } from "vant";
 import Api from "../Api";
+import { reject } from "q";
 export default {
   data() {
     return {
@@ -35,14 +36,16 @@ export default {
       Code: "",
       imgCode: "",
       imgUrl: "",
-      imgKey: ""
+      imgKey: "",
+      Type: false
     };
   },
   components: {
     [Cell.name]: Cell,
     [CellGroup.name]: CellGroup,
     [Button.name]: Button,
-    [Dialog.name]: Dialog
+    [Dialog.name]: Dialog,
+    [Toast.name]: Toast
   },
   methods: {
     /**
@@ -55,6 +58,11 @@ export default {
      * 获取验证码
      */
     getCode() {
+      if (this.phoneNumber == "") {
+        Toast("手机号码不能为空");
+        return;
+      }
+
       let data = Qs.stringify({
         mobile: this.phoneNumber,
         captcha_code: this.imgCode,
@@ -65,15 +73,19 @@ export default {
           headers: { "Content-Type": "application/x-www-form-urlencoded" }
         })
         .then(data => {
-          if (data.data.status == true) {
-            this.Code = data.data.data.match(/\d{4}/)[0];
-          } else {
+          if (data.data.status) {
             Dialog.alert({
               title: "提示",
               message: `${data.data.data}`
-            }).then(() => {});
+            });
+          } else {
+            if (data.data.data == "INVALID_CAPTCHA") {
+              this.getImg();
+              Toast("请输入图片验证码");
+            } else {
+              Toast(`${data.data.data}`);
+            }
           }
-          // console.log(data);
         })
         .catch(err => {
           console.log(err);
@@ -83,15 +95,34 @@ export default {
      * 获取图片验证码
      */
     getImg() {
-      this.axios.get(Api.GetImg).then(data => {
-        this.imgKey = data.data.data.key;
-        this.imgUrl = data.data.data.url;
+      return new Promise((resolve, reject) => {
+        this.axios.get(Api.GetImg).then(data => {
+          resolve(
+            (this.imgKey = data.data.data.key),
+            (this.imgUrl = data.data.data.url)
+          );
+        });
       });
     },
     /**
      * 修改手机号
      */
     changePass() {
+      if (this.phoneNumber == "") {
+        Toast("手机号码不能为空");
+        return;
+      }
+
+      if (this.Password == "" || this.Password.length < 6) {
+        Toast("密码格式不正确");
+        return;
+      }
+
+      if (this.Code == "") {
+        Toast("验证码不能为空");
+        return;
+      }
+
       let Token = localStorage.getItem("token");
       let data = Qs.stringify({
         mobile: this.phoneNumber,
@@ -103,8 +134,7 @@ export default {
           headers: { "Content-Type": "application/x-www-form-urlencoded" }
         })
         .then(data => {
-          // console.log(data);
-          if (data.data.status == true) {
+          if (data.data.status) {
             this.$router.push("/login");
           } else {
             Dialog.alert({
@@ -116,90 +146,97 @@ export default {
         .catch(err => {
           console.log(err);
         });
+    },
+    Loading(mess, num) {
+      Toast.loading({
+        mask: true,
+        message: mess,
+        duration: num
+        // closeOnClick: true
+      });
     }
   },
   created() {
     this.getImg();
+    Toast.clear();
   }
 };
 </script>
 
-<style scoped>
-.toBack {
-  height: 35px;
-  background: #50af08;
-  text-align: left;
-  padding: 10px;
-  position: relative;
-}
+<style scoped lang="less">
+.Set {
+  .toBack {
+    height: 35px;
+    background: #50af08;
+    text-align: left;
+    padding: 10px;
+    position: relative;
 
-.toBack-text {
-  position: absolute;
-  left: 40%;
-  color: #fff;
-  top: 25%;
-  font-size: 18px;
-}
+    .toBack-text {
+      position: absolute;
+      left: 40%;
+      color: #fff;
+      top: 25%;
+      font-size: 18px;
+    }
 
-.toBack > img {
-  height: 100%;
-}
+    img {
+      height: 100%;
+    }
+  }
 
-.changeMain {
-  margin-top: 15px;
-  padding: 0 50px;
-}
+  .changeMain {
+    margin-top: 15px;
+    padding: 0 50px;
 
-button {
-  color: #fff;
-}
+    .change {
+      input {
+        width: 100%;
+        height: 35px;
+        margin-top: 20px;
+        background: #f1f1f1;
+        font-size: 18px;
+        border: 0;
+        border-bottom: 1px solid #ccc;
+      }
+    }
+  }
 
-.change > input {
-  width: 100%;
-}
+  .flex {
+    display: flex;
 
-.change input {
-  width: 100%;
-  height: 35px;
-  margin-top: 20px;
-  background: rgba(141, 126, 126, 0.4);
-  color: #fff;
-  font-size: 18px;
-}
+    input {
+      flex: 1;
+    }
 
-input::-webkit-input-placeholder {
-  color: #fff;
-}
+    img {
+      height: 37px;
+      margin-top: 20px;
+      margin-right: 5px;
+    }
 
-.flex {
-  display: flex;
-}
+    button {
+      flex: 1;
+      height: 37px;
+      margin-top: 20px;
+      background: #50af08;
+    }
+  }
 
-.flex > input {
-  flex: 1;
-}
+  .rig {
+    margin-right: 5px;
+  }
 
-.rig {
-  margin-right: 5px;
-}
+  .but {
+    width: 100%;
+    height: 37px;
+    background: #50af08;
+    margin-top: 20px;
+  }
 
-.flex > img {
-  height: 37px;
-  margin-top: 20px;
-  margin-right: 5px;
-}
-
-.flex > button {
-  flex: 1;
-  height: 37px;
-  margin-top: 20px;
-  background: #50af08;
-}
-
-.but {
-  width: 100%;
-  height: 37px;
-  background: #50af08;
-  margin-top: 20px;
+  button {
+    border: 0;
+    color: #fff;
+  }
 }
 </style>

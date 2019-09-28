@@ -13,15 +13,8 @@ import Acco from '../Acccount/Acco'
 import Acc from '../Acccount/Acco/Acc'
 import Fin from '../Acccount/Acco/Finance'
 import Assets from '../Acccount/Acco/Assets'
-import AccAdd from '../Acccount/Acco/AccAdd'
-import AccEdit from '../Acccount/Acco/AccEdit'
 import Cate from '../Acccount/cate/cate'
-import CateAdd from '../Acccount/cate/CateAdd'
-import CateEdit from '../Acccount/cate/CateEdit'
-import FinAdd from '../Acccount/Acco/FinAdd'
-import FinEdit from '../Acccount/Acco/FinEdit'
 import Member from '../Acccount/member/member'
-import MemberAdd from '../Acccount/member/memberAdd'
 import Feed from '../Acccount/Feed/Feed'
 import Income from '../Acccount/Func/income'
 import Expen from '../Acccount/Func/expen'
@@ -39,7 +32,7 @@ export default new Router({
     path: '/',
     //路由导向
     redirect: {
-      name: '/me'
+      name: '/book'
     }
   }, {
     path: '/func',
@@ -106,41 +99,13 @@ export default new Router({
     name: '/Assets',
     component: Assets
   }, {
-    path: '/AccAdd',
-    name: '/vue/AccAdd',
-    component: AccAdd
-  }, {
-    path: '/AccEdit',
-    name: "/vue/AccEdit",
-    component: AccEdit
-  }, {
     path: "/Cate",
     name: '/vue/Cate',
     component: Cate
   }, {
-    path: '/CateAdd',
-    name: "/vue/CateAdd",
-    component: CateAdd
-  }, {
-    path: "/CateEdit",
-    name: '/vue/CateEdit',
-    component: CateEdit
-  }, {
-    path: '/FinAdd',
-    name: '/vue/FinAdd',
-    component: FinAdd
-  }, {
-    path: '/FinEdit',
-    name: '/vue/FinEdit',
-    component: FinEdit
-  }, {
     path: '/Member',
     name: '/vue/Member',
     component: Member
-  }, {
-    path: '/MemberAdd',
-    name: '/vue/MemberAdd',
-    component: MemberAdd
   }, {
     path: '/Feed',
     name: '/vue/Feed',
@@ -176,7 +141,7 @@ export default new Router({
   }, {
     path: '*',
     redirect: {
-      name: '/me'
+      name: '/book'
     }
   }]
 })

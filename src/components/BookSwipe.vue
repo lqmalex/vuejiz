@@ -17,7 +17,8 @@ import {
   SwipeItem,
   Button,
   Cell,
-  CellGroup
+  CellGroup,
+  Toast
 } from "vant";
 import Api from "../Api";
 export default {
@@ -29,15 +30,15 @@ export default {
     [SwipeCell.name]: SwipeCell,
     [Button.name]: Button,
     [Cell.name]: Cell,
-    [CellGroup.name]: CellGroup
+    [CellGroup.name]: CellGroup,
+    [Toast.name]: Toast
   },
   methods: {
     del(_this) {
       //获取id值
       let id = _this.path[4].attributes[1].nodeValue;
       let Token = localStorage.getItem("token");
-      // console.log(id);
-      // return;
+
       this.axios
         .post(Api.Del.Url1 + id + Api.Del.Url2 + Token)
         .then(data => {
@@ -52,34 +53,39 @@ export default {
         });
     }
   },
-  created() {}
+  created() {
+    Toast.clear();
+  }
 };
 </script>
 
-<style>
+<style lang="less">
 .book-swipe {
   background: #fff;
   margin-bottom: 5px;
-}
 
-.SwipeCell {
-  position: relative;
-  height: 45px;
-}
+  .SwipeCell {
+    position: relative;
+    height: 45px;
+  }
 
-.swipe-img {
-  width: 28px;
-  position: absolute;
-  top: 5px;
-  left: 10px;
-}
+  .swipe-img {
+    width: 28px;
+    position: absolute;
+    top: 5px;
+    left: 10px;
 
-.swipe-img img {
-  width: 100%;
-}
+    img {
+      width: 100%;
+      position: absolute;
+      left: 0;
+      top: 14px;
+    }
+  }
 
-.van-cell__title {
-  text-align: left;
-  padding-left: 25px;
+  .van-cell__title {
+    text-align: left;
+    padding-left: 25px;
+  }
 }
 </style>

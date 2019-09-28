@@ -32,13 +32,14 @@
 </template>
 
 <script>
-import { Cell, CellGroup, Button, Dialog } from "vant";
+import { Cell, CellGroup, Button, Dialog, Toast } from "vant";
 export default {
   components: {
     [Cell.name]: Cell,
     [CellGroup.name]: CellGroup,
     [Button.name]: Button,
-    [Dialog.name]: Dialog
+    [Dialog.name]: Dialog,
+    [Toast.name]: Toast
   },
   methods: {
     goToBack() {
@@ -48,7 +49,7 @@ export default {
       this.$router.push("/acco");
     },
     /**
-     * 跳转到记账成员 
+     * 跳转到记账成员
      */
     goToMe() {
       this.$router.push("/Member");
@@ -56,37 +57,40 @@ export default {
     goToFeed() {
       this.$router.push("/Feed");
     }
+  },
+  created() {
+    Toast.clear();
   }
 };
 </script>
 
-<style scoped>
+<style scoped lang="less">
 .Func-main {
   margin-top: 15px;
   background: #fff;
   overflow: hidden;
-}
 
-.Func-main-text {
-  position: relative;
-  border-bottom: 1px solid #ccc;
-  color: #bfbfbf;
-  text-align: left;
-  padding: 10px;
-  font-size: 20px;
-}
+  .Func-main-text {
+    position: relative;
+    border-bottom: 1px solid #ccc;
+    color: #bfbfbf;
+    text-align: left;
+    padding: 10px;
+    font-size: 20px;
 
-.Func-main-text img {
-  width: 20px;
-}
+    img {
+      width: 20px;
+    }
 
-.Func-main-text-icon {
-  position: absolute;
-  right: 10px;
-  top: 10px;
-}
+    .Func-main-text-icon {
+      position: absolute;
+      right: 10px;
+      top: 10px;
 
-.Func-main-text-icon img {
-  width: 20px;
+      img {
+        width: 20px;
+      }
+    }
+  }
 }
 </style>

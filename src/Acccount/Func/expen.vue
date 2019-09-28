@@ -1,5 +1,5 @@
 <template>
-  <div id="func">
+  <div class="func">
     <div class="func-branchr">
       <span class="func-branch-text">账面支出</span>
       <input type="text" placeholder="0.00" v-model="total_money" />
@@ -83,7 +83,9 @@
     </div>
     <div class="func-branchr big">
       <span class="func-branch-text">支出凭证</span>
-      <van-uploader v-model="fileList" :after-read="afterRead" />
+      <div class="flex-big">
+        <van-uploader v-model="fileList" :after-read="afterRead" :before-delete="beforeDel" />
+      </div>
     </div>
     <textarea placeholder="请输入备注..." v-model="remark"></textarea>
 
@@ -104,7 +106,8 @@ import {
   DatetimePicker,
   Uploader,
   Toast,
-  Dialog
+  Dialog,
+  Loading
 } from "vant";
 import Qs from "qs";
 import { reject } from "q";
@@ -121,7 +124,8 @@ export default {
     [DatetimePicker.name]: DatetimePicker,
     [Uploader.name]: Uploader,
     [Toast.name]: Toast,
-    [Dialog.name]: Dialog
+    [Dialog.name]: Dialog,
+    [Loading.name]: Loading
   },
   data() {
     return {
@@ -145,8 +149,12 @@ export default {
       Token: "",
       Acco: [],
       Cate: [],
-      fileKey: "",
-      remark: ""
+      fileKey: [],
+      remark: "",
+      SubType: true,
+      DisType: "none",
+      none: "none",
+      Dis: "block"
     };
   },
   methods: {
@@ -183,6 +191,18 @@ export default {
     setCmess(mess) {
       this.Cmess = mess == "" ? "" : mess;
       this.show3 = false;
+    },
+    /**
+     *删除图片
+     */
+    beforeDel(file) {
+      this.fileList.forEach((item, index) => {
+        if (item.content == file.content) {
+          this.fileList.splice(index, 1);
+          this.fileKey.splice(index, 1);
+        }
+      });
+      Toast("删除成功");
     },
     /**
      * 设置全额或分期
@@ -249,6 +269,9 @@ export default {
      */
     SubImg(file) {
       return new Promise((resolve, reject) => {
+        this.SubType = false;
+        this.Loading("上传图片中...", 0);
+        // this.DisType = "block";
         //new 一个FormData格式的参数
         let params = new FormData();
         params.append("file", file);
@@ -263,10 +286,18 @@ export default {
           .post(Api.UploadImg + this.Token, params, config)
           .then(data => {
             if (data.data.status == true) {
-              this.fileKey = data.data.data.file.fileKey;
+              // this.DisType = "none";
+              this.Loading("上传图片中...", 0.5);
+
+              this.fileKey.push(data.data.data.file.fileKey);
               Toast("文件上传成功");
+              this.SubType = true;
             } else {
+              // this.DisType = "none";
+              this.Loading("上传图片中...", 0.5);
+
               Toast("文件上传失败");
+              this.SubType = true;
             }
           });
       });
@@ -275,98 +306,200 @@ export default {
      *  提交
      */
     Submit() {
-      let money = this.money == "" ? this.total_money : this.money;
-      if (this.total_money < 0 || this.money < 0) {
-        Toast("亲，请不要使用负数哦!");
-        return;
-      }
-
-      let data = Qs.stringify({
-        total_money: this.total_money,
-        money: money,
-        account_id: this.Aid,
-        category_id: this.Cid,
-        date: this.timeValue,
-        company_name: this.company,
-        remark: this.remark,
-        image_keys: this.fileKey
-      });
-      this.axios.post(Api.SubAcc + this.Token, data).then(data => {
-        //   console.log(data);
-        if (data.data.status == true) {
-          Toast("提交成功");
-        } else {
-          Dialog.alert({
-            title: "提交",
-            message: `${data.data.data}`
-          }).then(() => {});
+      if (this.SubType) {
+        this.Loading("提交数据中...", 0);
+        let money = this.money == "" ? this.total_money : this.money;
+        if (this.total_money < 0 || this.money < 0) {
+          Toast("亲，请不要使用负数哦!");
+          return;
         }
+
+        if (money > 99999999 || this.total_money > 99999999) {
+          Toast("您输入的金额有误");
+          return;
+        }
+
+        if (this.fileKey.length == 0) {
+          var fileKey = "";
+        } else {
+          if (this.fileKey.length == 1) {
+            var fileKey = this.fileKey[0];
+          } else {
+            var fileKey = "";
+            var len = this.fileKey.length - 1;
+            this.fileKey.forEach((item, index) => {
+              if (index == len) {
+                item = item;
+              } else {
+                item = item + ",";
+              }
+              fileKey += item;
+            });
+          }
+        }
+
+        let data = Qs.stringify({
+          total_money: this.total_money,
+          money: money,
+          account_id: this.Aid,
+          category_id: this.Cid,
+          date: this.timeValue,
+          company_name: this.company,
+          remark: this.remark,
+          image_keys: fileKey
+        });
+
+        this.axios.post(Api.SubAcc + this.Token, data).then(data => {
+          if (data.data.status == true) {
+            let TimeNum = 3;
+
+            const toast = Toast.loading({
+              duration: 0,
+              forbidClick: true,
+              message: "提交成功 3 秒"
+            });
+
+            let timer = setInterval(() => {
+              TimeNum--;
+              if (TimeNum) {
+                toast.message = `提交成功 ${TimeNum} 秒`;
+              } else {
+                clearInterval(timer);
+                Toast.clear();
+                this.$router.push("/book");
+              }
+            }, 1000);
+          } else {
+            this.Loading("提交数据中...", 0.5);
+
+            Dialog.alert({
+              title: "提示",
+              message: `${data.data.data}`
+            }).then(() => {});
+          }
+        });
+      } else {
+        Dialog.alert({
+          title: "提示",
+          message: "网络正在请求，请稍等片刻"
+        }).then(() => {});
+      }
+    },
+    Loading(mess, num) {
+      Toast.loading({
+        mask: true,
+        message: mess,
+        duration: num
       });
     }
   },
   created() {
+    this.Loading("加载中...", 0);
     this.setTimeVal();
     this.setToken().then(() => {
-      this.getAcco(this.Token).then(() => {});
-      this.getCate(this.Token).then(() => {});
+      this.getAcco(this.Token).then(() => {
+        this.getCate(this.Token).then(() => {
+          this.Loading("加载中...", 0.5);
+        });
+      });
     });
   }
 };
 </script>
 
-<style scoped>
-.func-branchr {
-  text-align: left;
-  display: flex;
-  height: 50px;
-  background: #fff !important;
-  border-bottom: 2px solid #ccc;
-}
+<style scoped lang="less">
+.func {
+  .func-branchr {
+    text-align: left;
+    display: flex;
+    height: 50px;
+    background: #fff !important;
+    border-bottom: 2px solid #ccc;
 
-.big {
-  height: 80px;
-}
+    input {
+      flex: 1;
+      border: 0;
+      height: 50px;
+      text-align: right;
+      padding-right: 6px;
+    }
+  }
 
-.func-branch-text {
-  flex: 1;
-  line-height: 50px;
-  padding-left: 6px;
-}
+  .big {
+    height: 100%;
+  }
 
-.func-branchr > input {
-  flex: 1;
-  border: 0;
-  height: 50px;
-  text-align: right;
-  padding-right: 6px;
-}
+  .flex-big {
+    display: flex;
+    flex-wrap: wrap;
+    width: 176px;
+    justify-content: flex-end;
+    padding-top: 8px;
+  }
 
-.vant-but {
-  background: #fff;
-  border: 0;
-  color: #969696;
-}
+  .func-branch-text {
+    flex: 1;
+    padding-left: 6px;
+    display: flex;
+    align-items: center;
+  }
 
-.van-cell-group {
-  width: 300px;
-}
+  .vant-but {
+    background: #fff;
+    border: 0;
+    color: #969696;
+  }
 
-textarea {
-  width: 100%;
-  height: 80px;
-  border: 0;
-  border-bottom: 2px solid #ccc;
-}
+  .van-cell-group {
+    width: 300px;
+  }
 
-.bottom-but {
-  margin-top: 15px;
-  padding: 0 20px;
-}
+  textarea {
+    width: 100%;
+    height: 80px;
+    border: 0;
+    border-bottom: 2px solid #ccc;
+  }
 
-.bottom-but button {
-  width: 100%;
-  height: 37px;
-  background: #50af08;
-  color: #fff;
+  .bottom-but {
+    margin-top: 15px;
+    padding: 0 20px;
+  }
+
+  .bottom-but {
+    button {
+      width: 100%;
+      height: 37px;
+      background: #50af08;
+      color: #fff;
+    }
+  }
+
+  .Login,
+  .Login-Img {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(110, 110, 110, 0.4);
+    z-index: 9999;
+    text-align: center;
+  }
+
+  .Login-text {
+    position: absolute;
+    top: 42%;
+    left: 35%;
+  }
+
+  .van-loading {
+    position: absolute;
+    top: 45%;
+    left: 45%;
+  }
+
+  button {
+    border: 0;
+  }
 }
 </style>

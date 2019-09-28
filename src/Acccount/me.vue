@@ -21,6 +21,7 @@ import Func from "../components/me/meFunc";
 import Api from "../Api";
 import { resolve } from "url";
 import { reject } from "q";
+import { Loading, Toast } from "vant";
 export default {
   data() {
     return {
@@ -31,67 +32,84 @@ export default {
   },
   components: {
     columns,
-    Func
+    Func,
+    [Loading.name]: Loading,
+    [Toast.name]: Toast
   },
   methods: {
     /**
      * 获取用户信息
      */
     getInfo() {
-      let Token = localStorage.getItem("token");
+      return new Promise((resolve, reject) => {
+        let Token = localStorage.getItem("token");
 
-      this.axios
-        .get(Api.User + Token)
-        .then(data => {
-          // console.log(data);
-          this.name = data.data.data.nickname;
-          this.Img = data.data.data.avatar_url;
-          // console.log(data);
-        })
-        .catch(err => {
-          console.log(err);
-        });
+        this.axios
+          .get(Api.User + Token)
+          .then(data => {
+            // console.log(data);
+            resolve(
+              (this.name = data.data.data.nickname),
+              (this.Img = data.data.data.avatar_url)
+            );
+            // console.log(data);
+          })
+          .catch(err => {
+            console.log(err);
+          });
+      });
     },
     goToSetMe() {
       this.$router.push("/SetMer");
+    },
+    Loading(mess, num) {
+      Toast.loading({
+        mask: true,
+        message: mess,
+        duration: num
+        // closeOnClick: true
+      });
     }
   },
   created() {
-    this.getInfo();
+    this.Loading("加载中", 0);
+    this.getInfo().then(() => {
+      this.Loading("加载中", 0.5);
+    });
   }
 };
 </script>
 
-<style scoped>
+<style scoped lang="less">
 #me {
   margin-bottom: 80px;
-}
 
-.me-hea {
-  position: relative;
-}
+  .me-hea {
+    position: relative;
 
-.me-back {
-  width: 100%;
-  height: 230px;
-  background: url(../assets/images/background1.jpeg) no-repeat;
-  background-size: 100%;
-}
+    .me-back {
+      width: 100%;
+      height: 230px;
+      background: url(../assets/images/background1.jpeg) no-repeat;
+      background-size: 100%;
+    }
 
-.me-list {
-  width: 100%;
-  position: absolute;
-  top: 20%;
-}
+    .me-list {
+      width: 100%;
+      position: absolute;
+      top: 20%;
 
-.me-img {
-  width: 25%;
-  color: #fff;
-  margin: 0 auto;
-}
+      .me-img {
+        width: 25%;
+        color: #fff;
+        margin: 0 auto;
+      }
 
-.me-img img {
-  width: 100%;
-  border-radius: 50%;
+      img {
+        width: 100%;
+        border-radius: 50%;
+      }
+    }
+  }
 }
 </style>

@@ -3,7 +3,7 @@
     <div class="column-main">
       <div class="column-text Inv">{{Mer_len}}</div>
       <div class="column-botton">
-        <img src="../../assets/images/Inv.png" alt /> 已添加(成员)
+        <img src="../../assets/images/Inv.png" alt /> 已添加
       </div>
     </div>
     <div class="column-main">
@@ -15,7 +15,7 @@
     <div class="column-main">
       <div class="column-text Deta">{{Mxi_len}}</div>
       <div class="column-botton">
-        <img src="../../assets/images/Deta.png" alt /> 总明细
+        <img src="../../assets/images/Deta2.png" alt /> 总明细
       </div>
     </div>
   </div>
@@ -25,14 +25,20 @@
 import { resolve } from "url";
 import { reject } from "q";
 import Api from "../../Api";
+import { Toast } from "vant";
 export default {
+  components: {
+    [Toast.name]: Toast
+  },
   data() {
     return {
       Mxi_len: 0,
       Book_len: 0,
       Mer_len: 0,
       Token: "",
-      book_id: ""
+      book_id: "",
+      Page: 1,
+      Num: 0
     };
   },
   methods: {
@@ -54,7 +60,9 @@ export default {
     getAllBook(token) {
       return new Promise((resolve, reject) => {
         this.axios.get(Api.Book + token).then(data => {
-          resolve((this.Book_len = data.data.data.length));
+          if (data.data.status) {
+            resolve((this.Book_len = data.data.data.length));
+          }
         });
       });
     },
@@ -64,11 +72,22 @@ export default {
           .get(Api.Record + token, {
             params: {
               begin_date: "1990-01-01",
-              end_date: "2100-01-01"
+              end_date: "2100-01-01",
+              page: this.Page
             }
           })
           .then(data => {
-            resolve((this.Mxi_len = data.data.data.list.length));
+            //因返回的数据最多20条所以当list长度等于20时递归调用自己 且让页码+1 直到最后一页
+            if (data.data.data.list.length == 20) {
+              this.Num += data.data.data.list.length;
+              this.Page += 1;
+              let tokenr = localStorage.getItem("token");
+              this.getDataNum(tokenr).then(() => {});
+            } else {
+              this.Num += data.data.data.list.length;
+            }
+
+            resolve((this.Mxi_len = this.Num));
           });
       });
     },
@@ -81,12 +100,17 @@ export default {
             }
           })
           .then(data => {
+            if (!data.data.status) {
+              resolve((this.Mer_len = 0));
+              return;
+            }
             resolve((this.Mer_len = data.data.data.length));
           });
       });
     }
   },
   created() {
+    Toast.clear();
     this.getToken().then(() => {
       this.getBook(this.Token).then(() => {
         this.getMember(this.Book_id, this.Token).then(() => {});
@@ -98,51 +122,55 @@ export default {
 };
 </script>
 
-<style scoped>
+<style scoped lang="less">
 .columns {
   display: flex;
   background: #fff;
   border-bottom: 1px solid #ccc;
-}
 
-.columns > div + div::before {
-  content: "";
-  display: block;
-  position: absolute;
-  width: 1px;
-  height: 80%;
-  left: 0;
-  top: 5px;
-  background: #bfbfbf;
-}
+  & > div {
+    & + div {
+      &::before {
+        content: "";
+        display: block;
+        position: absolute;
+        width: 1px;
+        height: 80%;
+        left: 0;
+        top: 5px;
+        background: #bfbfbf;
+      }
+    }
+  }
 
-.column-main {
-  flex: 1;
-  padding: 5px 0;
-  position: relative;
-}
+  .column-main {
+    flex: 1;
+    padding: 5px 0;
+    position: relative;
+  }
 
-.column-text {
-  font-size: 35px;
-}
+  .column-text {
+    font-size: 35px;
+  }
 
-.Inv {
-  color: orange;
-}
+  .Inv {
+    color: orange;
+  }
 
-.book {
-  color: #05b1b1;
-}
+  .book {
+    color: #05b1b1;
+  }
 
-.Deta {
-  color: #1ad82d;
-}
+  .Deta {
+    color: #1ad82d;
+  }
 
-.column-botton {
-  color: #bfbfbf;
-}
+  .column-botton {
+    color: #bfbfbf;
 
-.column-botton img {
-  width: 14px;
+    img {
+      width: 14px;
+    }
+  }
 }
 </style>

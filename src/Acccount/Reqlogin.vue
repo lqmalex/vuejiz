@@ -1,45 +1,61 @@
 <template>
   <div id="ReqLogin">
-    <div class="paging">
-      <router-link to="/login">登录</router-link>
-      <router-link to="/req">注册</router-link>
-    </div>
-    <div class="page">
-      <keep-alive>
-        <router-view></router-view>
-      </keep-alive>
+    <div class="ReqLogin_main">
+      <div class="page">
+        <keep-alive>
+          <router-view></router-view>
+        </keep-alive>
+      </div>
+      <div class="paging">
+        <router-link v-show="!type" to="/login">登录</router-link>
+        <router-link v-show="type" to="/req">注册</router-link>
+      </div>
     </div>
   </div>
 </template>
-
+ 
 <script>
+import { Toast } from "vant";
+export default {
+  data() {
+    return {
+      type: true
+    };
+  },
+  methods: {
+    setType() {
+      let route = this.$route.name;
+      this.type = route == "/login" ? true : false;
+    }
+  },
+  created() {
+    this.setType();
+    Toast.clear();
+  },
+  updated() {
+    this.setType();
+  }
+};
 </script>
 
-<style scoped>
+<style scoped lang="less">
 #ReqLogin {
   width: 100%;
   position: absolute;
   height: 100%;
-  background: url(../assets/images/background6.jpg) no-repeat;
-  background-size: cover;
-}
-
-.paging {
+  background: #fff;
   display: flex;
-  padding-top: 20px;
-}
+  align-items: center;
+  justify-content: center;
+  .paging {
+    margin-top: 15px;
 
-.paging a {
-  flex: 1;
-  color: #fff;
-  font-size: 25px;
-}
-
-.page {
-  margin-top: 35px;
-}
-
-.router-link-exact-active {
-  border-bottom: 1px solid #fff;
+    a {
+      color: #969696;
+      display: block;
+      font-size: 15px;
+      text-align: left;
+    }
+  }
 }
 </style>

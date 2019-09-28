@@ -8,7 +8,6 @@
       <div class="change">
         <input type="password" placeholder="请输入旧密码" v-model="phoneNumber" />
         <input type="password" placeholder="请输入新密码" v-model="Password" />
-
         <button class="but" @click="changePass">修改密码</button>
       </div>
     </div>
@@ -17,7 +16,7 @@
 
 <script>
 import Qs from "qs";
-import { Cell, CellGroup, Button, Dialog } from "vant";
+import { Cell, CellGroup, Button, Dialog, Toast } from "vant";
 import Api from "../Api";
 export default {
   data() {
@@ -30,7 +29,8 @@ export default {
     [Cell.name]: Cell,
     [CellGroup.name]: CellGroup,
     [Button.name]: Button,
-    [Dialog.name]: Dialog
+    [Dialog.name]: Dialog,
+    [Toast.name]: Toast
   },
   methods: {
     /**
@@ -40,6 +40,16 @@ export default {
       this.$router.go(-1);
     },
     changePass() {
+      if (this.phoneNumber == "" || this.phoneNumber.length < 6) {
+        Toast("旧密码格式不正确");
+        return;
+      }
+
+      if (this.new_password == "" || this.new_password.length < 6) {
+        Toast("新密码格式不正确");
+        return;
+      }
+
       let Token = localStorage.getItem("token");
       let data = Qs.stringify({
         password: this.phoneNumber,
@@ -64,86 +74,87 @@ export default {
           console.log(err);
         });
     }
+  },
+  created() {
+    Toast.clear();
   }
 };
 </script>
 
-<style scoped>
-.toBack {
-  height: 35px;
-  background: #50af08;
-  text-align: left;
-  padding: 10px;
-  position: relative;
-}
+<style scoped lang="less">
+.Set {
+  .toBack {
+    height: 35px;
+    background: #50af08;
+    text-align: left;
+    padding: 10px;
+    position: relative;
 
-.toBack-text {
-  position: absolute;
-  left: 40%;
-  color: #fff;
-  top: 25%;
-  font-size: 18px;
-}
+    .toBack-text {
+      position: absolute;
+      left: 40%;
+      color: #fff;
+      top: 25%;
+      font-size: 18px;
+    }
 
-.toBack > img {
-  height: 100%;
-}
+    img {
+      height: 100%;
+    }
+  }
 
-.changeMain {
-  margin-top: 15px;
-  padding: 0 50px;
-}
+  .changeMain {
+    margin-top: 15px;
+    padding: 0 50px;
 
-button {
-  color: #fff;
-}
+    .change {
+      input {
+        width: 100%;
+        height: 35px;
+        margin-top: 20px;
+        border: 0;
+        background: #f1f1f1;
+        font-size: 18px;
+        border-bottom: 1px solid #ccc;
+      }
+    }
 
-.change > input {
-  width: 100%;
-}
+    .flex {
+      display: flex;
 
-.change input {
-  width: 100%;
-  height: 35px;
-  margin-top: 20px;
-  background: rgba(141, 126, 126, 0.4);
-  color: #fff;
-  font-size: 18px;
-}
+      input {
+        flex: 1;
+      }
 
-input::-webkit-input-placeholder {
-  color: #fff;
-}
+      img {
+        height: 37px;
+        margin-top: 20px;
+        margin-right: 5px;
+      }
 
-.flex {
-  display: flex;
-}
+      button {
+        flex: 1;
+        height: 37px;
+        margin-top: 20px;
+        background: #50af08;
+      }
+    }
 
-.flex > input {
-  flex: 1;
-}
+    .rig {
+      margin-right: 5px;
+    }
 
-.rig {
-  margin-right: 5px;
-}
+    .but {
+      width: 100%;
+      height: 37px;
+      background: #50af08;
+      margin-top: 20px;
+    }
 
-.flex > img {
-  height: 37px;
-  margin-top: 20px;
-  margin-right: 5px;
-}
-
-.flex > button {
-  flex: 1;
-  height: 37px;
-  margin-top: 20px;
-  background: #50af08;
-}
-
-.but {
-  width: 100%;
-  height: 37px;
-  background: #50af08;
-  margin-top: 20px;
+    button {
+      color: #fff;
+      border: 0;
+    }
+  }
 }
 </style>

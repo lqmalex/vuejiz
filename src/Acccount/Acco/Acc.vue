@@ -28,7 +28,11 @@
 </template>
 
 <script>
+import { Toast } from "vant";
 export default {
+  components: {
+    [Toast.name]: Toast
+  },
   methods: {
     /**
      *返回上一页
@@ -50,61 +54,64 @@ export default {
       localStorage.setItem("cate", Id);
       this.$router.push("/Cate");
     }
+  },
+  created() {
+    Toast.clear();
   }
 };
 </script>
 
-<style scoped>
+<style scoped lang="less">
 .Set {
   width: 100%;
-}
 
-.toBack {
-  height: 35px;
-  background: #50af08;
-  text-align: left;
-  padding: 10px;
-  position: relative;
-}
+  .toBack {
+    height: 35px;
+    background: #50af08;
+    text-align: left;
+    padding: 10px;
+    position: relative;
 
-.toBack-text {
-  position: absolute;
-  left: 45%;
-  color: #fff;
-  top: 25%;
-  font-size: 18px;
-}
+    .toBack-text {
+      position: absolute;
+      left: 45%;
+      color: #fff;
+      top: 25%;
+      font-size: 18px;
+    }
 
-.toBack > img {
-  height: 100%;
-}
+    img {
+      height: 100%;
+    }
+  }
 
-.Func-main {
-  margin-top: 15px;
-  background: #fff;
-  overflow: hidden;
-}
+  .Func-main {
+    margin-top: 15px;
+    background: #fff;
+    overflow: hidden;
 
-.Func-main-text {
-  position: relative;
-  border-bottom: 1px solid #ccc;
-  color: #bfbfbf;
-  text-align: left;
-  padding: 10px;
-  font-size: 20px;
-}
+    .Func-main-text {
+      position: relative;
+      border-bottom: 1px solid #ccc;
+      color: #bfbfbf;
+      text-align: left;
+      padding: 10px;
+      font-size: 20px;
 
-.Func-main-text img {
-  width: 20px;
-}
+      img {
+        width: 20px;
+      }
+    }
 
-.Func-main-text-icon {
-  position: absolute;
-  right: 10px;
-  top: 10px;
-}
+    .Func-main-text-icon {
+      position: absolute;
+      right: 10px;
+      top: 10px;
 
-.Func-main-text-icon img {
-  width: 20px;
+      img {
+        width: 20px;
+      }
+    }
+  }
 }
 </style>

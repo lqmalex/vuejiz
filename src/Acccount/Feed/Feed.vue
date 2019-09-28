@@ -4,10 +4,13 @@
       <img src="../../assets/images/Back.png" @click="goToFrount" />
       <span class="toBack-text">意见反馈</span>
     </div>
-    <div class="text">问题和意见</div>
-    <textarea placeholder="请简要描述您的问题和意见" v-model="message"></textarea>
-    <div class="text">联系电话或邮箱</div>
-    <input type="text" placeholder="选填，便于我们与您联系" v-model="info" />
+    <div class="pad">
+      <div class="text">问题和意见</div>
+      <textarea placeholder="请简要描述您的问题和意见" v-model="message"></textarea>
+      <div class="text">联系电话或邮箱</div>
+      <input type="text" placeholder="选填，便于我们与您联系" v-model="info" />
+    </div>
+
     <div class="but-box">
       <button class="but" @click="Sub">提交意见</button>
     </div>
@@ -16,7 +19,7 @@
 
 <script>
 import Swipe from "../../components/BookSwipe";
-import { Cell, CellGroup, Button, Dialog } from "vant";
+import { Cell, CellGroup, Button, Dialog, Toast } from "vant";
 import { resolve } from "url";
 import { reject } from "q";
 import Qs from "qs";
@@ -34,7 +37,8 @@ export default {
     [Cell.name]: Cell,
     [CellGroup.name]: CellGroup,
     [Button.name]: Button,
-    [Dialog.name]: Dialog
+    [Dialog.name]: Dialog,
+    [Toast.name]: Toast
   },
   methods: {
     /**
@@ -77,64 +81,78 @@ export default {
   },
   created() {
     this.getInfo().then(() => {});
+    Toast.clear();
   }
 };
 </script>
 
-<style scoped>
+<style scoped lang="less">
 .Set {
   width: 100%;
   position: relative;
-}
 
-.toBack {
-  height: 35px;
-  background: #50af08;
-  text-align: left;
-  padding: 10px;
-  margin-bottom: 5px;
-  position: relative;
-}
+  .toBack {
+    height: 35px;
+    background: #50af08;
+    text-align: left;
+    padding: 10px;
+    margin-bottom: 5px;
+    position: relative;
 
-.toBack-text {
-  position: absolute;
-  left: 38%;
-  color: #fff;
-  top: 25%;
-  font-size: 18px;
-}
+    img {
+      height: 100%;
+    }
+  }
 
-.toBack > img {
-  height: 100%;
-}
+  .toBack-text {
+    position: absolute;
+    left: 38%;
+    color: #fff;
+    top: 25%;
+    font-size: 18px;
+  }
 
-.but-box {
-  padding: 0 10px;
-  margin-top: 15px;
-}
+  .but-box {
+    padding: 0 10px;
+    margin-top: 15px;
 
-.but-box > .but {
-  width: 100%;
-  height: 37px;
-  color: #fff;
-  background: #50af08;
-}
-.text {
-  text-align: left;
-  padding: 0 10px;
-  color: #969696;
-  font-size: 14px;
-}
+    .but {
+      width: 100%;
+      height: 37px;
+      color: #fff;
+      background: #50af08;
+    }
+  }
 
-textarea {
-  width: 99%;
-  height: 60px;
-  background: rgba(141, 126, 126, 0.2);
-}
+  .text {
+    text-align: left;
+    padding: 0 10px;
+    color: #969696;
+    font-size: 14px;
+  }
 
-input {
-  width: 99%;
-  height: 35px;
-  background: rgba(141, 126, 126, 0.2);
+  textarea {
+    width: 99%;
+    height: 60px;
+    background: #f1f1f1;
+    border: 0;
+    border-bottom: 1px solid #ccc;
+  }
+
+  input {
+    width: 99%;
+    height: 35px;
+    background: #f1f1f1;
+    border: 0;
+    border-bottom: 1px solid #ccc;
+  }
+
+  .pad {
+    padding: 0 10px;
+  }
+
+  button {
+    border: 0;
+  }
 }
 </style>

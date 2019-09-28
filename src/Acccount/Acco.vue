@@ -1,6 +1,6 @@
 <template>
   <div class="Set">
-    <div class="toBack">
+    <div class="toBack" style="position: relative;">
       <img src="../assets/images/Back.png" @click="goToFrount" />
       <span class="toBack-text">财务、账簿</span>
     </div>
@@ -28,6 +28,7 @@
 <script>
 import Qs from "qs";
 import Mainr from "../components/Main";
+import { Toast } from "vant";
 export default {
   components: {
     Mainr
@@ -48,56 +49,61 @@ export default {
     gotoFin() {
       this.$router.push("/Fin");
     }
+  },
+  created() {
+    Toast.clear();
   }
 };
 </script>
 
-<style scoped>
-.toBack {
-  height: 35px;
-  background: #50af08;
-  text-align: left;
-  padding: 10px;
-}
+<style scoped lang="less">
+.Set {
+  .toBack {
+    height: 35px;
+    background: #50af08;
+    text-align: left;
+    padding: 10px;
 
-.toBack-text {
-  position: absolute;
-  left: 40%;
-  color: #fff;
-  top: 25%;
-  font-size: 18px;
-}
+    .toBack-text {
+      position: absolute;
+      left: 40%;
+      color: #fff;
+      top: 25%;
+      font-size: 18px;
+    }
 
-.toBack > img {
-  height: 100%;
-}
+    img {
+      height: 100%;
+    }
+  }
 
-.Func-main {
-  margin-top: 15px;
-  background: #fff;
-  overflow: hidden;
-}
+  .Func-main {
+    margin-top: 15px;
+    background: #fff;
+    overflow: hidden;
 
-.Func-main-text {
-  position: relative;
-  border-bottom: 1px solid #ccc;
-  color: #bfbfbf;
-  text-align: left;
-  padding: 10px;
-  font-size: 20px;
-}
+    .Func-main-text {
+      position: relative;
+      border-bottom: 1px solid #ccc;
+      color: #bfbfbf;
+      text-align: left;
+      padding: 10px;
+      font-size: 20px;
 
-.Func-main-text img {
-  width: 20px;
-}
+      img {
+        width: 20px;
+      }
 
-.Func-main-text-icon {
-  position: absolute;
-  right: 10px;
-  top: 10px;
-}
+      .Func-main-text-icon {
+        position: absolute;
+        right: 10px;
+        top: 10px;
 
-.Func-main-text-icon img {
-  width: 20px;
+        img {
+          width: 20px;
+        }
+      }
+    }
+  }
 }
 </style>
